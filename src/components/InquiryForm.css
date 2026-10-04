@@ -1,0 +1,225 @@
+.inquiry-section {
+  padding: 6rem 0;
+  background-color: var(--color-dark-surface);
+  position: relative;
+  border-top: 1px solid rgba(245, 231, 198, 0.08);
+}
+
+.inquiry-wrapper {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 3.5rem;
+  align-items: flex-start;
+}
+
+@media (min-width: 992px) {
+  .inquiry-wrapper {
+    grid-template-columns: 1fr 1.1fr;
+    gap: 4rem;
+  }
+}
+
+.inquiry-info-column {
+  display: flex;
+  flex-direction: column;
+}
+
+.inquiry-info-desc {
+  font-size: 1.05rem;
+  color: var(--color-text-muted);
+  line-height: 1.6;
+  margin-bottom: 2.5rem;
+}
+
+.inquiry-contact-details {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+}
+
+.contact-item {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.contact-icon {
+  width: 48px;
+  height: 48px;
+  background: rgba(245, 231, 198, 0.05);
+  border: 1px solid rgba(255, 109, 31, 0.3);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.contact-label {
+  display: block;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--color-text-muted);
+  margin-bottom: 0.2rem;
+}
+
+.contact-value {
+  font-family: var(--font-serif);
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--color-beige);
+  text-decoration: none;
+  transition: var(--transition-smooth);
+}
+
+.contact-value:hover {
+  color: var(--color-orange);
+}
+
+.contact-value-text {
+  font-size: 0.95rem;
+  color: var(--color-cream);
+}
+
+.showroom-hours-card {
+  background: var(--color-dark);
+  border: 1px solid rgba(245, 231, 198, 0.12);
+  padding: 1.5rem;
+  border-radius: 8px;
+  border-left: 3px solid var(--color-orange);
+}
+
+.hours-title {
+  font-family: var(--font-serif);
+  font-size: 1.1rem;
+  color: var(--color-cream);
+  margin-bottom: 0.5rem;
+}
+
+.showroom-hours-card p {
+  font-size: 0.88rem;
+  color: var(--color-text-muted);
+  line-height: 1.5;
+}
+
+/* Form Styles */
+.inquiry-form-column {
+  background-color: var(--color-dark);
+  border: 1px solid rgba(245, 231, 198, 0.15);
+  padding: 2.5rem;
+  border-radius: 12px;
+  box-shadow: var(--shadow-luxury);
+}
+
+.luxury-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: var(--color-cream);
+}
+
+.form-input, .form-textarea {
+  width: 100%;
+  background-color: var(--color-dark-card);
+  border: 1px solid rgba(245, 231, 198, 0.2);
+  border-radius: 6px;
+  padding: 0.9rem 1.1rem;
+  color: var(--color-cream);
+  font-size: 0.95rem;
+  transition: var(--transition-smooth);
+}
+
+.form-input:focus, .form-textarea:focus {
+  outline: none;
+  border-color: var(--color-orange);
+  box-shadow: 0 0 12px rgba(255, 109, 31, 0.25);
+  background-color: #2e2e2e;
+}
+
+.form-input::placeholder, .form-textarea::placeholder {
+  color: rgba(197, 188, 168, 0.5);
+  font-size: 0.88rem;
+}
+
+.form-textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+.form-submit-btn {
+  width: 100%;
+  margin-top: 0.5rem;
+}
+
+.form-footnote {
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+.form-footnote strong {
+  color: var(--color-beige);
+}
+
+/* Success Card */
+.form-success-card {
+  text-align: center;
+  padding: 2rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.success-icon {
+  color: var(--color-orange);
+  margin-bottom: 1.25rem;
+}
+
+.form-success-card h3 {
+  font-family: var(--font-serif);
+  font-size: 1.75rem;
+  color: var(--color-cream);
+  margin-bottom: 0.75rem;
+}
+
+.form-success-card p {
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin-bottom: 0.5rem;
+}
+
+.form-success-card code {
+  color: var(--color-orange);
+  background: rgba(255, 109, 31, 0.1);
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+}
+
+.success-sub {
+  margin-top: 0.5rem;
+  font-size: 0.88rem;
+}
+
+@media (max-width: 576px) {
+  .inquiry-form-column {
+    padding: 1.5rem;
+  }
+}
