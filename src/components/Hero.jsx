@@ -1,6 +1,5 @@
 import React from 'react';
 import { ArrowRight, ChevronDown, Award, ShieldCheck, Sparkles } from 'lucide-react';
-import CarPlaceholder from './CarPlaceholder';
 import './Hero.css';
 
 const Hero = () => {
@@ -29,9 +28,13 @@ const Hero = () => {
           </div>
         </div>
 
-        {/* Car Image Placeholder Section */}
+        {/* Hero Car Image */}
         <div className="hero-car-wrapper">
-          <CarPlaceholder />
+          <img
+            src="/src/assets/hero-car.png"
+            alt="Luxury performance car"
+            className="hero-car-image"
+          />
         </div>
 
         {/* Hero Features Bar */}
