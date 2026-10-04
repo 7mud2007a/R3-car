@@ -53,6 +53,13 @@
   text-shadow: 0 8px 30px rgba(0, 0, 0, 0.28);
 }
 
+@media (min-width: 769px) {
+  .hero-title {
+    font-size: clamp(5.5rem, 11vw, 10rem);
+    letter-spacing: 0.055em;
+  }
+}
+
 @media (max-width: 768px) {
   .hero-title {
     font-size: clamp(3rem, 16vw, 5rem);
