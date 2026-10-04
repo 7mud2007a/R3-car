@@ -1,6 +1,8 @@
 import React from 'react';
-import { ArrowRight, ChevronDown, Award, ShieldCheck, Sparkles } from 'lucide-react';
+import { ArrowRight, ChevronDown, Award, ShieldCheck } from 'lucide-react';
 import './Hero.css';
+import heroCarMobile from '../assets/hero-car.png';
+import heroCarDesktop from '../assets/hero-car-desktop.png';
 
 const Hero = () => {
   return (
@@ -33,10 +35,10 @@ const Hero = () => {
           <picture>
             <source
               media="(min-width: 769px)"
-              srcSet="/src/assets/hero-car-desktop.png"
+              srcSet={heroCarDesktop}
             />
             <img
-              src="/src/assets/hero-car.png"
+              src={heroCarMobile}
               alt="Luxury performance car"
               className="hero-car-image"
             />
