@@ -30,11 +30,17 @@ const Hero = () => {
 
         {/* Hero Car Image */}
         <div className="hero-car-wrapper">
-          <img
-            src="/src/assets/hero-car.png"
-            alt="Luxury performance car"
-            className="hero-car-image"
-          />
+          <picture>
+            <source
+              media="(min-width: 769px)"
+              srcSet="/src/assets/hero-car-desktop.png"
+            />
+            <img
+              src="/src/assets/hero-car.png"
+              alt="Luxury performance car"
+              className="hero-car-image"
+            />
+          </picture>
         </div>
 
         {/* Hero Features Bar */}
