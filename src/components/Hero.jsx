@@ -8,23 +8,14 @@ const Hero = () => {
     <section id="hero" className="hero-section">
       <div className="container hero-container">
 
-        {/* Top Tagline & Headline */}
+        {/* Hero Branding */}
         <div className="hero-header">
-          <div className="hero-badge">
-            <Sparkles size={16} color="#FF6D1F" />
-            <span>VELTRIX</span>
-          </div>
-
           <h1 className="hero-title">
             VELTRIX
           </h1>
 
           <p className="hero-description hero-tagline">
             Redefining Luxury & Performance
-          </p>
-
-          <p className="hero-description">
-            Welcome to <strong>AURA Luxury Motors</strong>, where unparalleled engineering meets timeless sophistication. Discover a curated collection of elite hypercars, rare supercars, and bespoke luxury sedans crafted for the discerning driver.
           </p>
 
           <div className="hero-cta-group">
