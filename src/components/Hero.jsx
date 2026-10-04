@@ -12,12 +12,16 @@ const Hero = () => {
         <div className="hero-header">
           <div className="hero-badge">
             <Sparkles size={16} color="#FF6D1F" />
-            <span>Pure Automotive Distinction</span>
+            <span>VELTRIX</span>
           </div>
 
           <h1 className="hero-title">
-            Redefining <span className="highlight-text">Luxury</span> & Performance
+            VELTRIX
           </h1>
+
+          <p className="hero-description hero-tagline">
+            Redefining Luxury & Performance
+          </p>
 
           <p className="hero-description">
             Welcome to <strong>AURA Luxury Motors</strong>, where unparalleled engineering meets timeless sophistication. Discover a curated collection of elite hypercars, rare supercars, and bespoke luxury sedans crafted for the discerning driver.
