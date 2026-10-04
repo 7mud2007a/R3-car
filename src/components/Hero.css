@@ -90,6 +90,31 @@
 .hero-car-wrapper {
   width: 100%;
   margin-bottom: 3rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.hero-car-image {
+  display: block;
+  width: min(100%, 1100px);
+  height: auto;
+  max-height: 560px;
+  object-fit: contain;
+  border-radius: 12px;
+  filter: drop-shadow(0 24px 35px rgba(0, 0, 0, 0.35));
+}
+
+@media (max-width: 768px) {
+  .hero-car-wrapper {
+    margin-bottom: 2.5rem;
+  }
+
+  .hero-car-image {
+    width: 100%;
+    max-height: 360px;
+    object-fit: contain;
+  }
 }
 
 /* Hero Highlights Bar */
