@@ -42,10 +42,12 @@ const CarShowcase = () => {
     const ctx = canvas.getContext('2d', { alpha: true });
     if (!ctx) return;
 
-    // Decode frames ahead of time so a touch move never waits on image decoding.
+    // Preload every frame once. The files are compact WebP assets, so the
+    // animation can change frames immediately while the finger is moving.
     const images = frames.map((src) => {
       const image = new Image();
       image.decoding = 'async';
+      image.loading = 'eager';
       image.src = src;
       return image;
     });
@@ -96,7 +98,8 @@ const CarShowcase = () => {
 
       geometryRef.current = {
         startX: imageRect.left + imageRect.width / 2 - stageRect.left,
-        startY: imageRect.top + imageRect.height / 2 - stageRect.top,
+        // Start slightly lower inside the hero background.
+        startY: imageRect.top + imageRect.height / 2 - stageRect.top + window.innerHeight * 0.07,
         targetX: slotRect.left + slotRect.width / 2 - stageRect.left,
         targetY: slotRect.bottom - sizeRect.height / 2 - stageRect.top,
         targetScale: sizeRect.width / canvas.offsetWidth,
@@ -147,20 +150,24 @@ const CarShowcase = () => {
       if (!touch || !gesture) return;
 
       const deltaY = gesture.startY - touch.clientY;
+
+      // Slightly faster than the native 1:1 finger distance, while keeping
+      // the movement directly tied to the finger.
       pendingProgressRef.current = clamp(
-        gesture.startProgress + deltaY / gesture.travel,
+        gesture.startProgress + (deltaY * 1.12) / gesture.travel,
         0,
         1,
       );
 
-      // One render per animation frame, instead of drawing a frame for every
-      // raw touchmove event. This keeps the finger motion smooth on phones.
       if (!touchRafRef.current) {
         touchRafRef.current = requestAnimationFrame(flushTouch);
       }
     };
 
     const onTouchEnd = () => {
+      // Do not cancel native scrolling. Mobile browsers keep their natural
+      // momentum after the finger leaves the screen, so the car follows it
+      // smoothly until the scroll comes to rest.
       touchRef.current = null;
       requestScrollUpdate();
     };
@@ -210,7 +217,11 @@ const CarShowcase = () => {
             {cars.map((car, index) => (
               <div ref={index === 2 ? slotRef : undefined} className="car-slot" key={index}>
                 {car ? (
-                  <img ref={index === 0 ? sizeRef : undefined} src={car} alt={'Luxury vehicle ' + (index + 1)} />
+                  <img
+                    ref={index === 0 ? sizeRef : undefined}
+                    src={car}
+                    alt={'Luxury vehicle ' + (index + 1)}
+                  />
                 ) : null}
               </div>
             ))}
