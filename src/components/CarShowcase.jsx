@@ -45,7 +45,7 @@ const CarShowcase = () => {
     // Keep a small rolling cache around the current frame instead.
     const imageCache = new Map();
     const loading = new Map();
-    const CACHE_RADIUS = window.innerWidth <= 768 ? 4 : 6;
+    const CACHE_RADIUS = window.innerWidth <= 768 ? 3 : 5;
     const MAX_CANVAS_WIDTH = window.innerWidth <= 768 ? 820 : 1200;
 
     const loadFrame = (index) => {
@@ -112,12 +112,24 @@ const CarShowcase = () => {
     const warmNearbyFrames = (center) => {
       const first = Math.max(0, center - CACHE_RADIUS);
       const last = Math.min(frameLoaders.length - 1, center + CACHE_RADIUS);
+      const priority = [center - 1, center + 1, center - 2, center + 2];
 
-      for (let index = first; index <= last; index += 1) {
-        if (!imageCache.has(index)) loadFrame(index);
+      priority.forEach((index) => {
+        if (index >= first && index <= last && !imageCache.has(index)) loadFrame(index);
+      });
+
+      const warm = () => {
+        for (let index = first; index <= last; index += 1) {
+          if (!imageCache.has(index)) loadFrame(index);
+        }
+        trimCache(center);
+      };
+
+      if ('requestIdleCallback' in window) {
+        window.requestIdleCallback(warm, { timeout: 120 });
+      } else {
+        window.setTimeout(warm, 60);
       }
-
-      trimCache(center);
     };
 
     const updateFromProgress = (progress) => {
