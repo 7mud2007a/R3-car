@@ -267,7 +267,7 @@ const CarShowcase = ({ onLoadingProgress, onReady }) => {
       imageCache.clear();
       loading.clear();
     };
-  }, [onLoadingProgress, onReady]);
+  }, []);
 
   return (
     <section ref={sectionRef} className="car-motion-section" aria-label="Featured vehicle collection">
