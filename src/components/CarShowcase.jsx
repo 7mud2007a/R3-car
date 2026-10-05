@@ -25,63 +25,42 @@ const CarShowcase = () => {
   const geometryRef = useRef(null);
   const touchRef = useRef(null);
   const rafRef = useRef(0);
+  const touchRafRef = useRef(0);
+  const pendingProgressRef = useRef(null);
   const progressRef = useRef(0);
   const lastFrameRef = useRef(-1);
-  const loadedFramesRef = useRef([]);
-  const drawReadyRef = useRef(false);
 
   useEffect(() => {
     const section = sectionRef.current;
     const stage = stageRef.current;
-    const frame = frameRef.current;
+    const canvas = frameRef.current;
     const slot = slotRef.current;
     const size = sizeRef.current;
 
-    if (!section || !stage || !frame || !slot || !size || !frames.length) return;
+    if (!section || !stage || !canvas || !slot || !size || !frames.length) return;
 
+    const ctx = canvas.getContext('2d', { alpha: true });
+    if (!ctx) return;
+
+    // Decode frames ahead of time so a touch move never waits on image decoding.
     const images = frames.map((src) => {
       const image = new Image();
       image.decoding = 'async';
       image.src = src;
       return image;
     });
-    loadedFramesRef.current = images;
 
     const drawFrame = (index) => {
       const image = images[index];
       if (!image || !image.complete || !image.naturalWidth) return;
 
-      const ctx = frame.getContext('2d');
-      if (!ctx) return;
-
-      if (frame.width !== image.naturalWidth || frame.height !== image.naturalHeight) {
-        frame.width = image.naturalWidth;
-        frame.height = image.naturalHeight;
+      if (canvas.width !== image.naturalWidth || canvas.height !== image.naturalHeight) {
+        canvas.width = image.naturalWidth;
+        canvas.height = image.naturalHeight;
       }
 
-      ctx.clearRect(0, 0, frame.width, frame.height);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.drawImage(image, 0, 0);
-      drawReadyRef.current = true;
-    };
-
-    const measure = () => {
-      const stageRect = stage.getBoundingClientRect();
-      const imageWrap = stage.querySelector('.car-motion-image-wrap');
-      const imageRect = imageWrap.getBoundingClientRect();
-      const slotRect = slot.getBoundingClientRect();
-      const sizeRect = size.getBoundingClientRect();
-      const baseFrameWidth = frame.offsetWidth;
-
-      geometryRef.current = {
-        startX: imageRect.left + imageRect.width / 2 - stageRect.left,
-        startY: imageRect.top + imageRect.height / 2 - stageRect.top,
-        targetX: slotRect.left + slotRect.width / 2 - stageRect.left,
-        targetY: slotRect.bottom - sizeRect.height / 2 - stageRect.top,
-        targetScale: sizeRect.width / baseFrameWidth,
-        travel: Math.max(section.offsetHeight - window.innerHeight, 1),
-      };
-
-      updateFromProgress(progressRef.current);
     };
 
     const updateFromProgress = (progress) => {
@@ -95,12 +74,12 @@ const CarShowcase = () => {
       const y = geometry.startY + (geometry.targetY - geometry.startY) * safeProgress;
       const scale = 1 + (geometry.targetScale - 1) * safeProgress;
 
-      frame.style.transform =
+      canvas.style.transform =
         'translate3d(' + x + 'px,' + y + 'px,0) translate(-50%,-50%) scale(' + scale + ')';
 
       const frameIndex = Math.min(
         frames.length - 1,
-        Math.floor(safeProgress * (frames.length - 1) + 0.00001),
+        Math.floor(safeProgress * (frames.length - 1)),
       );
 
       if (frameIndex !== lastFrameRef.current) {
@@ -109,32 +88,51 @@ const CarShowcase = () => {
       }
     };
 
+    const measure = () => {
+      const stageRect = stage.getBoundingClientRect();
+      const imageRect = stage.querySelector('.car-motion-image-wrap').getBoundingClientRect();
+      const slotRect = slot.getBoundingClientRect();
+      const sizeRect = size.getBoundingClientRect();
+
+      geometryRef.current = {
+        startX: imageRect.left + imageRect.width / 2 - stageRect.left,
+        startY: imageRect.top + imageRect.height / 2 - stageRect.top,
+        targetX: slotRect.left + slotRect.width / 2 - stageRect.left,
+        targetY: slotRect.bottom - sizeRect.height / 2 - stageRect.top,
+        targetScale: sizeRect.width / canvas.offsetWidth,
+        travel: Math.max(section.offsetHeight - window.innerHeight, 1),
+      };
+
+      updateFromProgress(progressRef.current);
+    };
+
     const updateFromScroll = () => {
       rafRef.current = 0;
       const geometry = geometryRef.current;
-      if (!geometry) return;
+      if (!geometry || touchRef.current) return;
 
-      const progress = clamp(
-        -section.getBoundingClientRect().top / geometry.travel,
-        0,
-        1,
+      updateFromProgress(
+        clamp(-section.getBoundingClientRect().top / geometry.travel, 0, 1),
       );
-
-      updateFromProgress(progress);
     };
 
     const requestScrollUpdate = () => {
-      if (!rafRef.current) {
-        rafRef.current = requestAnimationFrame(updateFromScroll);
+      if (!rafRef.current) rafRef.current = requestAnimationFrame(updateFromScroll);
+    };
+
+    const flushTouch = () => {
+      touchRafRef.current = 0;
+      const progress = pendingProgressRef.current;
+      if (progress !== null) {
+        pendingProgressRef.current = null;
+        updateFromProgress(progress);
       }
     };
 
     const onTouchStart = (event) => {
       const touch = event.touches[0];
-      if (!touch) return;
-
       const geometry = geometryRef.current;
-      if (!geometry) return;
+      if (!touch || !geometry) return;
 
       touchRef.current = {
         startY: touch.clientY,
@@ -148,11 +146,18 @@ const CarShowcase = () => {
       const gesture = touchRef.current;
       if (!touch || !gesture) return;
 
-      // Update immediately from the finger movement itself instead of waiting
-      // for the browser to finish the scroll gesture.
       const deltaY = gesture.startY - touch.clientY;
-      const nextProgress = gesture.startProgress + deltaY / gesture.travel;
-      updateFromProgress(nextProgress);
+      pendingProgressRef.current = clamp(
+        gesture.startProgress + deltaY / gesture.travel,
+        0,
+        1,
+      );
+
+      // One render per animation frame, instead of drawing a frame for every
+      // raw touchmove event. This keeps the finger motion smooth on phones.
+      if (!touchRafRef.current) {
+        touchRafRef.current = requestAnimationFrame(flushTouch);
+      }
     };
 
     const onTouchEnd = () => {
@@ -162,7 +167,10 @@ const CarShowcase = () => {
 
     images.forEach((image, index) => {
       image.onload = () => {
-        if (index === 0 && !drawReadyRef.current) drawFrame(0);
+        if (index === 0 && lastFrameRef.current < 0) {
+          lastFrameRef.current = 0;
+          drawFrame(0);
+        }
       };
     });
 
@@ -177,6 +185,7 @@ const CarShowcase = () => {
 
     return () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      if (touchRafRef.current) cancelAnimationFrame(touchRafRef.current);
       window.removeEventListener('scroll', requestScrollUpdate);
       window.removeEventListener('resize', measure);
       window.removeEventListener('load', measure);
@@ -195,11 +204,7 @@ const CarShowcase = () => {
             <img src={background} alt="Luxury vehicle scene" className="car-motion-background" />
           </div>
 
-          <canvas
-            ref={frameRef}
-            aria-hidden="true"
-            className="car-motion-frame"
-          />
+          <canvas ref={frameRef} aria-hidden="true" className="car-motion-frame" />
 
           <div className="car-collection">
             {cars.map((car, index) => (
