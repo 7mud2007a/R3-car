@@ -80,14 +80,6 @@ const CarShowcase = ({ onLoadingProgress, onReady }) => {
       return promise;
     };
 
-    const trimCache = (center) => {
-      for (const index of imageCache.keys()) {
-        if (Math.abs(index - center) > CACHE_RADIUS + 4) {
-          imageCache.delete(index);
-        }
-      }
-    };
-
     const drawImage = (image) => {
       if (!image || !image.naturalWidth) return;
 
@@ -122,7 +114,6 @@ const CarShowcase = ({ onLoadingProgress, onReady }) => {
         for (let index = first; index <= last; index += 1) {
           if (!imageCache.has(index)) loadFrame(index);
         }
-        trimCache(center);
       };
 
       if ('requestIdleCallback' in window) {
@@ -268,7 +259,7 @@ const CarShowcase = ({ onLoadingProgress, onReady }) => {
     lastFrameRef.current = 0;
     loadFrame(0).then((image) => {
       if (image && lastFrameRef.current === 0) drawImage(image);
-        warmNearbyFrames(0);
+      warmNearbyFrames(0);
     });
     preloadAllFrames();
 
