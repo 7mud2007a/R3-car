@@ -42,27 +42,75 @@ const CarShowcase = () => {
     const ctx = canvas.getContext('2d', { alpha: true });
     if (!ctx) return;
 
-    // Preload every frame once. The files are compact WebP assets, so the
-    // animation can change frames immediately while the finger is moving.
-    const images = frames.map((src) => {
-      const image = new Image();
-      image.decoding = 'async';
-      image.loading = 'eager';
-      image.src = src;
-      return image;
-    });
+    // IMPORTANT: don't create/decode 144 images at startup.
+    // Keep a small rolling cache around the current frame instead.
+    const imageCache = new Map();
+    const loading = new Map();
+    const CACHE_RADIUS = 8;
+    const MAX_CANVAS_WIDTH = 1400;
 
-    const drawFrame = (index) => {
-      const image = images[index];
-      if (!image || !image.complete || !image.naturalWidth) return;
+    const loadFrame = (index) => {
+      if (index < 0 || index >= frames.length) return Promise.resolve(null);
+      if (imageCache.has(index)) return Promise.resolve(imageCache.get(index));
+      if (loading.has(index)) return loading.get(index);
 
-      if (canvas.width !== image.naturalWidth || canvas.height !== image.naturalHeight) {
-        canvas.width = image.naturalWidth;
-        canvas.height = image.naturalHeight;
+      const promise = new Promise((resolve) => {
+        const image = new Image();
+        image.decoding = 'async';
+        image.onload = () => {
+          imageCache.set(index, image);
+          loading.delete(index);
+          resolve(image);
+        };
+        image.onerror = () => {
+          loading.delete(index);
+          resolve(null);
+        };
+        image.src = frames[index];
+      });
+
+      loading.set(index, promise);
+      return promise;
+    };
+
+    const trimCache = (center) => {
+      for (const index of imageCache.keys()) {
+        if (Math.abs(index - center) > CACHE_RADIUS + 4) {
+          imageCache.delete(index);
+        }
+      }
+    };
+
+    const drawImage = (image) => {
+      if (!image || !image.naturalWidth) return;
+
+      const ratio = image.naturalHeight / image.naturalWidth;
+      const width = Math.min(image.naturalWidth, MAX_CANVAS_WIDTH);
+      const height = Math.max(1, Math.round(width * ratio));
+
+      if (canvas.width !== width || canvas.height !== height) {
+        canvas.width = width;
+        canvas.height = height;
       }
 
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(image, 0, 0);
+      ctx.clearRect(0, 0, width, height);
+      ctx.drawImage(image, 0, 0, width, height);
+    };
+
+    const requestFrame = async (index) => {
+      const image = await loadFrame(index);
+      if (image && index === lastFrameRef.current) drawImage(image);
+    };
+
+    const warmNearbyFrames = (center) => {
+      const first = Math.max(0, center - CACHE_RADIUS);
+      const last = Math.min(frames.length - 1, center + CACHE_RADIUS);
+
+      for (let index = first; index <= last; index += 1) {
+        if (!imageCache.has(index)) loadFrame(index);
+      }
+
+      trimCache(center);
     };
 
     const updateFromProgress = (progress) => {
@@ -86,7 +134,15 @@ const CarShowcase = () => {
 
       if (frameIndex !== lastFrameRef.current) {
         lastFrameRef.current = frameIndex;
-        drawFrame(frameIndex);
+
+        const cached = imageCache.get(frameIndex);
+        if (cached) {
+          drawImage(cached);
+        } else {
+          requestFrame(frameIndex);
+        }
+
+        warmNearbyFrames(frameIndex);
       }
     };
 
@@ -98,11 +154,10 @@ const CarShowcase = () => {
 
       geometryRef.current = {
         startX: imageRect.left + imageRect.width / 2 - stageRect.left,
-        // Start slightly lower inside the hero background.
         startY: imageRect.top + imageRect.height / 2 - stageRect.top + window.innerHeight * 0.07,
         targetX: slotRect.left + slotRect.width / 2 - stageRect.left,
         targetY: slotRect.bottom - sizeRect.height / 2 - stageRect.top,
-        targetScale: sizeRect.width / canvas.offsetWidth,
+        targetScale: sizeRect.width / Math.max(canvas.offsetWidth, 1),
         travel: Math.max(section.offsetHeight - window.innerHeight, 1),
       };
 
@@ -151,8 +206,6 @@ const CarShowcase = () => {
 
       const deltaY = gesture.startY - touch.clientY;
 
-      // Slightly faster than the native 1:1 finger distance, while keeping
-      // the movement directly tied to the finger.
       pendingProgressRef.current = clamp(
         gesture.startProgress + (deltaY * 1.12) / gesture.travel,
         0,
@@ -165,20 +218,15 @@ const CarShowcase = () => {
     };
 
     const onTouchEnd = () => {
-      // Do not cancel native scrolling. Mobile browsers keep their natural
-      // momentum after the finger leaves the screen, so the car follows it
-      // smoothly until the scroll comes to rest.
       touchRef.current = null;
       requestScrollUpdate();
     };
 
-    images.forEach((image, index) => {
-      image.onload = () => {
-        if (index === 0 && lastFrameRef.current < 0) {
-          lastFrameRef.current = 0;
-          drawFrame(0);
-        }
-      };
+    // Only load the first frame immediately.
+    lastFrameRef.current = 0;
+    loadFrame(0).then((image) => {
+      if (image && lastFrameRef.current === 0) drawImage(image);
+      warmNearbyFrames(0);
     });
 
     measure();
@@ -200,6 +248,8 @@ const CarShowcase = () => {
       window.removeEventListener('touchmove', onTouchMove);
       window.removeEventListener('touchend', onTouchEnd);
       window.removeEventListener('touchcancel', onTouchEnd);
+      imageCache.clear();
+      loading.clear();
     };
   }, []);
 
