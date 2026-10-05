@@ -127,8 +127,14 @@ const CarShowcase = ({ onLoadingProgress, onReady }) => {
         loadedCount += 1;
         if (onLoadingProgress) onLoadingProgress(Math.round((loadedCount / total) * 100));
       };
-      for (let start = 0; start < total; start += 6) {
-        const batch = frameLoaders.slice(start, start + 6).map((_, offset) => loadFrame(start + offset).then(updateProgress));
+      for (let start = 0; start < total; start += 8) {
+        const batch = frameLoaders.slice(start, start + 8).map((_, offset) => {
+          const index = start + offset;
+          return Promise.race([
+            loadFrame(index),
+            new Promise((resolve) => setTimeout(() => resolve(null), 12000)),
+          ]).finally(updateProgress);
+        });
         await Promise.all(batch);
       }
       if (onLoadingProgress) onLoadingProgress(100);
@@ -143,7 +149,8 @@ const CarShowcase = ({ onLoadingProgress, onReady }) => {
     };
 
     const ctxSafe = gsap.context(() => {
-      preloadAllFrames().then(drawFirstFrame);
+      drawFirstFrame();
+      preloadAllFrames();
 
       const geometry = measure();
       const proxy = { progress: 0 };
