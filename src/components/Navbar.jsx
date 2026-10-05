@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Shield, Menu, X, Phone, Car } from 'lucide-react';
 import './Navbar.css';
+import veltrixLogo from '../assets/veltrix-logo.png';
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -32,13 +33,11 @@ const Navbar = () => {
       <div className="container navbar-container">
         {/* Brand / Logo */}
         <a href="#" className="navbar-brand" onClick={closeMobileMenu}>
-          <div className="brand-icon">
-            <Car size={26} color="#FF6D1F" />
-          </div>
-          <div className="brand-text">
-            <span className="brand-title">AURA</span>
-            <span className="brand-subtitle">LUXURY MOTORS</span>
-          </div>
+          <img
+            src={veltrixLogo}
+            alt="VELTRIX"
+            className="brand-logo"
+          />
         </a>
 
         {/* Desktop Navigation */}
