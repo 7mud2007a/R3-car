@@ -23,8 +23,12 @@ const CarShowcase = () => {
   const slotRef = useRef(null);
   const sizeRef = useRef(null);
   const geometryRef = useRef(null);
-  const lastFrameRef = useRef(-1);
+  const touchRef = useRef(null);
   const rafRef = useRef(0);
+  const progressRef = useRef(0);
+  const lastFrameRef = useRef(-1);
+  const loadedFramesRef = useRef([]);
+  const drawReadyRef = useRef(false);
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -35,13 +39,37 @@ const CarShowcase = () => {
 
     if (!section || !stage || !frame || !slot || !size || !frames.length) return;
 
+    const images = frames.map((src) => {
+      const image = new Image();
+      image.decoding = 'async';
+      image.src = src;
+      return image;
+    });
+    loadedFramesRef.current = images;
+
+    const drawFrame = (index) => {
+      const image = images[index];
+      if (!image || !image.complete || !image.naturalWidth) return;
+
+      const ctx = frame.getContext('2d');
+      if (!ctx) return;
+
+      if (frame.width !== image.naturalWidth || frame.height !== image.naturalHeight) {
+        frame.width = image.naturalWidth;
+        frame.height = image.naturalHeight;
+      }
+
+      ctx.clearRect(0, 0, frame.width, frame.height);
+      ctx.drawImage(image, 0, 0);
+      drawReadyRef.current = true;
+    };
+
     const measure = () => {
       const stageRect = stage.getBoundingClientRect();
       const imageWrap = stage.querySelector('.car-motion-image-wrap');
       const imageRect = imageWrap.getBoundingClientRect();
       const slotRect = slot.getBoundingClientRect();
       const sizeRect = size.getBoundingClientRect();
-
       const baseFrameWidth = frame.offsetWidth;
 
       geometryRef.current = {
@@ -53,10 +81,35 @@ const CarShowcase = () => {
         travel: Math.max(section.offsetHeight - window.innerHeight, 1),
       };
 
-      update();
+      updateFromProgress(progressRef.current);
     };
 
-    const update = () => {
+    const updateFromProgress = (progress) => {
+      const geometry = geometryRef.current;
+      if (!geometry) return;
+
+      const safeProgress = clamp(progress, 0, 1);
+      progressRef.current = safeProgress;
+
+      const x = geometry.startX + (geometry.targetX - geometry.startX) * safeProgress;
+      const y = geometry.startY + (geometry.targetY - geometry.startY) * safeProgress;
+      const scale = 1 + (geometry.targetScale - 1) * safeProgress;
+
+      frame.style.transform =
+        'translate3d(' + x + 'px,' + y + 'px,0) translate(-50%,-50%) scale(' + scale + ')';
+
+      const frameIndex = Math.min(
+        frames.length - 1,
+        Math.floor(safeProgress * (frames.length - 1) + 0.00001),
+      );
+
+      if (frameIndex !== lastFrameRef.current) {
+        lastFrameRef.current = frameIndex;
+        drawFrame(frameIndex);
+      }
+    };
+
+    const updateFromScroll = () => {
       rafRef.current = 0;
       const geometry = geometryRef.current;
       if (!geometry) return;
@@ -67,42 +120,70 @@ const CarShowcase = () => {
         1,
       );
 
-      const x = geometry.startX + (geometry.targetX - geometry.startX) * progress;
-      const y = geometry.startY + (geometry.targetY - geometry.startY) * progress;
-      const scale = 1 + (geometry.targetScale - 1) * progress;
-
-      frame.style.transform =
-        'translate3d(' + x + 'px,' + y + 'px,0) translate(-50%,-50%) scale(' + scale + ')';
-
-      const frameIndex = Math.min(
-        frames.length - 1,
-        Math.round(progress * (frames.length - 1)),
-      );
-
-      if (frameIndex !== lastFrameRef.current) {
-        frame.src = frames[frameIndex];
-        lastFrameRef.current = frameIndex;
-      }
+      updateFromProgress(progress);
     };
 
-    const requestUpdate = () => {
+    const requestScrollUpdate = () => {
       if (!rafRef.current) {
-        rafRef.current = requestAnimationFrame(update);
+        rafRef.current = requestAnimationFrame(updateFromScroll);
       }
     };
 
-    const onResize = () => measure();
+    const onTouchStart = (event) => {
+      const touch = event.touches[0];
+      if (!touch) return;
+
+      const geometry = geometryRef.current;
+      if (!geometry) return;
+
+      touchRef.current = {
+        startY: touch.clientY,
+        startProgress: progressRef.current,
+        travel: geometry.travel,
+      };
+    };
+
+    const onTouchMove = (event) => {
+      const touch = event.touches[0];
+      const gesture = touchRef.current;
+      if (!touch || !gesture) return;
+
+      // Update immediately from the finger movement itself instead of waiting
+      // for the browser to finish the scroll gesture.
+      const deltaY = gesture.startY - touch.clientY;
+      const nextProgress = gesture.startProgress + deltaY / gesture.travel;
+      updateFromProgress(nextProgress);
+    };
+
+    const onTouchEnd = () => {
+      touchRef.current = null;
+      requestScrollUpdate();
+    };
+
+    images.forEach((image, index) => {
+      image.onload = () => {
+        if (index === 0 && !drawReadyRef.current) drawFrame(0);
+      };
+    });
 
     measure();
-    window.addEventListener('scroll', requestUpdate, { passive: true });
-    window.addEventListener('resize', onResize);
-    window.addEventListener('load', onResize);
+    window.addEventListener('scroll', requestScrollUpdate, { passive: true });
+    window.addEventListener('resize', measure);
+    window.addEventListener('load', measure);
+    window.addEventListener('touchstart', onTouchStart, { passive: true });
+    window.addEventListener('touchmove', onTouchMove, { passive: true });
+    window.addEventListener('touchend', onTouchEnd, { passive: true });
+    window.addEventListener('touchcancel', onTouchEnd, { passive: true });
 
     return () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
-      window.removeEventListener('scroll', requestUpdate);
-      window.removeEventListener('resize', onResize);
-      window.removeEventListener('load', onResize);
+      window.removeEventListener('scroll', requestScrollUpdate);
+      window.removeEventListener('resize', measure);
+      window.removeEventListener('load', measure);
+      window.removeEventListener('touchstart', onTouchStart);
+      window.removeEventListener('touchmove', onTouchMove);
+      window.removeEventListener('touchend', onTouchEnd);
+      window.removeEventListener('touchcancel', onTouchEnd);
     };
   }, []);
 
@@ -114,9 +195,11 @@ const CarShowcase = () => {
             <img src={background} alt="Luxury vehicle scene" className="car-motion-background" />
           </div>
 
-          {frames.length > 0 && (
-            <img ref={frameRef} src={frames[0]} alt="" aria-hidden="true" className="car-motion-frame" />
-          )}
+          <canvas
+            ref={frameRef}
+            aria-hidden="true"
+            className="car-motion-frame"
+          />
 
           <div className="car-collection">
             {cars.map((car, index) => (
