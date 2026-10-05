@@ -33,9 +33,9 @@
 
 .brand-logo {
   display: block;
-  width: 210px;
+  width: 245px;
   height: auto;
-  max-height: 54px;
+  max-height: 62px;
   object-fit: contain;
   object-position: left center;
 }
@@ -197,8 +197,8 @@
 
 @media (max-width: 900px) {
   .brand-logo {
-    width: 185px;
-    max-height: 48px;
+    width: 215px;
+    max-height: 54px;
   }
 
   .desktop-nav {
