@@ -18,7 +18,7 @@ const frameLoaders = Object.entries(frameModules)
 
 const cars = [car01, car02, null, car03];
 
-const CarShowcase = () => {
+const CarShowcase = ({ onLoadingProgress, onReady }) => {
   const sectionRef = useRef(null);
   const stageRef = useRef(null);
   const frameRef = useRef(null);
@@ -120,6 +120,21 @@ const CarShowcase = () => {
       };
     };
 
+    const preloadAllFrames = async () => {
+      let loadedCount = 0;
+      const total = frameLoaders.length;
+      const updateProgress = () => {
+        loadedCount += 1;
+        if (onLoadingProgress) onLoadingProgress(Math.round((loadedCount / total) * 100));
+      };
+      for (let start = 0; start < total; start += 6) {
+        const batch = frameLoaders.slice(start, start + 6).map((_, offset) => loadFrame(start + offset).then(updateProgress));
+        await Promise.all(batch);
+      }
+      if (onLoadingProgress) onLoadingProgress(100);
+      if (onReady) onReady();
+    };
+
     const drawFirstFrame = async () => {
       const image = await loadFrame(0);
       if (!image) return;
@@ -128,7 +143,7 @@ const CarShowcase = () => {
     };
 
     const ctxSafe = gsap.context(() => {
-      drawFirstFrame();
+      preloadAllFrames().then(drawFirstFrame);
 
       const geometry = measure();
       const proxy = { progress: 0 };
