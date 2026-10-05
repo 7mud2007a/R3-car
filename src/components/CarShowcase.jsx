@@ -162,7 +162,7 @@ const CarShowcase = () => {
         trigger: section,
         start: 'top top',
         end: 'bottom bottom',
-        scrub: 0.18,
+        scrub: 0.32,
         invalidateOnRefresh: true,
         onUpdate: (self) => {
           proxy.progress = self.progress;
