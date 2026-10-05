@@ -1,6 +1,7 @@
 import React from 'react';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
+import CarShowcase from './components/CarShowcase';
 import About from './components/About';
 import SocialMedia from './components/SocialMedia';
 import InquiryForm from './components/InquiryForm';
@@ -13,6 +14,7 @@ function App() {
       <Navbar />
       <main>
         <Hero />
+        <CarShowcase />
         <About />
         <SocialMedia />
         <InquiryForm />
