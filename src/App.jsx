@@ -18,11 +18,8 @@ function App() {
         <div className="site-loader">
           <div className="site-loader-content">
             <span className="site-loader-brand">VELTRIX</span>
-            <div className="site-loader-line">
-              <span style={{ width: loadingProgress + '%' }} />
-            </div>
             <span className="site-loader-percent">{loadingProgress}%</span>
-            <span className="site-loader-label">PREPARING EXPERIENCE</span>
+            <span className="site-loader-label">LOADING FRAMES</span>
           </div>
         </div>
       )}
