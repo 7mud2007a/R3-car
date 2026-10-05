@@ -6,12 +6,11 @@ import background from '../assets/hero-car-background.jpg';
 import './CarShowcase.css';
 
 const frameModules = import.meta.glob('../assets/car-frames/frame_*.webp', {
-  eager: true,
   import: 'default',
 });
-const frames = Object.entries(frameModules)
+const frameLoaders = Object.entries(frameModules)
   .sort(([a], [b]) => a.localeCompare(b, undefined, { numeric: true }))
-  .map(([, src]) => src);
+  .map(([, loader]) => loader);
 
 const cars = [car01, car02, null, car03];
 const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
@@ -37,7 +36,7 @@ const CarShowcase = () => {
     const slot = slotRef.current;
     const size = sizeRef.current;
 
-    if (!section || !stage || !canvas || !slot || !size || !frames.length) return;
+    if (!section || !stage || !canvas || !slot || !size || !frameLoaders.length) return;
 
     const ctx = canvas.getContext('2d', { alpha: true });
     if (!ctx) return;
@@ -46,15 +45,23 @@ const CarShowcase = () => {
     // Keep a small rolling cache around the current frame instead.
     const imageCache = new Map();
     const loading = new Map();
-    const CACHE_RADIUS = 8;
-    const MAX_CANVAS_WIDTH = 1400;
+    const CACHE_RADIUS = window.innerWidth <= 768 ? 4 : 6;
+    const MAX_CANVAS_WIDTH = window.innerWidth <= 768 ? 820 : 1200;
 
     const loadFrame = (index) => {
-      if (index < 0 || index >= frames.length) return Promise.resolve(null);
+      if (index < 0 || index >= frameLoaders.length) return Promise.resolve(null);
       if (imageCache.has(index)) return Promise.resolve(imageCache.get(index));
       if (loading.has(index)) return loading.get(index);
 
-      const promise = new Promise((resolve) => {
+      const promise = new Promise(async (resolve) => {
+        let src = null;
+        try {
+          src = await frameLoaders[index]();
+        } catch {
+          loading.delete(index);
+          resolve(null);
+          return;
+        }
         const image = new Image();
         image.decoding = 'async';
         image.onload = () => {
@@ -104,7 +111,7 @@ const CarShowcase = () => {
 
     const warmNearbyFrames = (center) => {
       const first = Math.max(0, center - CACHE_RADIUS);
-      const last = Math.min(frames.length - 1, center + CACHE_RADIUS);
+      const last = Math.min(frameLoaders.length - 1, center + CACHE_RADIUS);
 
       for (let index = first; index <= last; index += 1) {
         if (!imageCache.has(index)) loadFrame(index);
@@ -128,8 +135,8 @@ const CarShowcase = () => {
         'translate3d(' + x + 'px,' + y + 'px,0) translate(-50%,-50%) scale(' + scale + ')';
 
       const frameIndex = Math.min(
-        frames.length - 1,
-        Math.floor(safeProgress * (frames.length - 1)),
+        frameLoaders.length - 1,
+        Math.floor(safeProgress * (frameLoaders.length - 1)),
       );
 
       if (frameIndex !== lastFrameRef.current) {
