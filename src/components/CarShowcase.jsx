@@ -5,7 +5,7 @@ import car03 from '../assets/car-03.png';
 import background from '../assets/hero-car-background.jpg';
 import './CarShowcase.css';
 
-const frameModules = import.meta.glob('../assets/car-frames/frame_*.png', {
+const frameModules = import.meta.glob('../assets/car-frames/frame_*.webp', {
   eager: true,
   import: 'default',
 });
@@ -38,13 +38,17 @@ const CarShowcase = () => {
 
     const measure = () => {
       const stageRect = stage.getBoundingClientRect();
+      const imageWrap = stage.querySelector('.car-motion-image-wrap');
+      const imageRect = imageWrap.getBoundingClientRect();
       const slotRect = slot.getBoundingClientRect();
       const sizeRect = size.getBoundingClientRect();
       const frameRect = frame.getBoundingClientRect();
 
       geometryRef.current = {
-        startX: frameRect.left + frameRect.width / 2 - stageRect.left,
-        startY: frameRect.top + frameRect.height / 2 - stageRect.top,
+        // Start exactly at the center of the background image, not at the
+        // frame's current transformed position.
+        startX: imageRect.left + imageRect.width / 2 - stageRect.left,
+        startY: imageRect.top + imageRect.height / 2 - stageRect.top,
         targetX: slotRect.left + slotRect.width / 2 - stageRect.left,
         targetY: slotRect.top + slotRect.height / 2 - stageRect.top,
         targetScale: sizeRect.width / frameRect.width,
@@ -123,16 +127,17 @@ const CarShowcase = () => {
               alt="Luxury vehicle scene"
               className="car-motion-background"
             />
-            {frames.length > 0 && (
-              <img
-                ref={frameRef}
-                src={frames[0]}
-                alt=""
-                aria-hidden="true"
-                className="car-motion-frame"
-              />
-            )}
           </div>
+
+          {frames.length > 0 && (
+            <img
+              ref={frameRef}
+              src={frames[0]}
+              alt=""
+              aria-hidden="true"
+              className="car-motion-frame"
+            />
+          )}
 
           <div className="car-collection">
             {cars.map((car, index) => (
