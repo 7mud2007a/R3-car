@@ -211,7 +211,7 @@ const CarShowcase = ({ onLoadingProgress, onReady }) => {
 
       const trigger = ScrollTrigger.create({
         trigger: section,
-        start: 'top top',
+        start: 'center center',
         end: 'bottom bottom',
         scrub: true,
         invalidateOnRefresh: true,
