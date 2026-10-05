@@ -14,7 +14,6 @@ const frames = Object.entries(frameModules)
   .map(([, src]) => src);
 
 const cars = [car01, car02, null, car03];
-
 const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
 
 const CarShowcase = () => {
@@ -42,20 +41,18 @@ const CarShowcase = () => {
       const imageRect = imageWrap.getBoundingClientRect();
       const slotRect = slot.getBoundingClientRect();
       const sizeRect = size.getBoundingClientRect();
-      const frameRect = frame.getBoundingClientRect();
+
+      const baseFrameWidth = frame.offsetWidth;
 
       geometryRef.current = {
-        // Start exactly at the center of the background image, not at the
-        // frame's current transformed position.
         startX: imageRect.left + imageRect.width / 2 - stageRect.left,
         startY: imageRect.top + imageRect.height / 2 - stageRect.top,
         targetX: slotRect.left + slotRect.width / 2 - stageRect.left,
-        targetY: slotRect.top + slotRect.height / 2 - stageRect.top,
-        targetScale: sizeRect.width / frameRect.width,
+        targetY: slotRect.bottom - sizeRect.height / 2 - stageRect.top,
+        targetScale: sizeRect.width / baseFrameWidth,
         travel: Math.max(section.offsetHeight - window.innerHeight, 1),
       };
 
-      // Keep the current visual position stable after a resize.
       update();
     };
 
@@ -79,7 +76,7 @@ const CarShowcase = () => {
 
       const frameIndex = Math.min(
         frames.length - 1,
-        Math.floor(progress * frames.length),
+        Math.round(progress * (frames.length - 1)),
       );
 
       if (frameIndex !== lastFrameRef.current) {
@@ -94,13 +91,9 @@ const CarShowcase = () => {
       }
     };
 
-    const onResize = () => {
-      measure();
-    };
+    const onResize = () => measure();
 
-    // Establish geometry before the first scroll frame.
     measure();
-
     window.addEventListener('scroll', requestUpdate, { passive: true });
     window.addEventListener('resize', onResize);
     window.addEventListener('load', onResize);
@@ -114,47 +107,23 @@ const CarShowcase = () => {
   }, []);
 
   return (
-    <section
-      ref={sectionRef}
-      className="car-motion-section"
-      aria-label="Featured vehicle collection"
-    >
+    <section ref={sectionRef} className="car-motion-section" aria-label="Featured vehicle collection">
       <div ref={stageRef} className="car-motion-sticky">
         <div className="car-motion-stage">
           <div className="car-motion-image-wrap">
-            <img
-              src={background}
-              alt="Luxury vehicle scene"
-              className="car-motion-background"
-            />
+            <img src={background} alt="Luxury vehicle scene" className="car-motion-background" />
           </div>
 
           {frames.length > 0 && (
-            <img
-              ref={frameRef}
-              src={frames[0]}
-              alt=""
-              aria-hidden="true"
-              className="car-motion-frame"
-            />
+            <img ref={frameRef} src={frames[0]} alt="" aria-hidden="true" className="car-motion-frame" />
           )}
 
           <div className="car-collection">
             {cars.map((car, index) => (
-              <div
-                ref={index === 2 ? slotRef : undefined}
-                className={'car-slot ' + (car ? '' : 'car-slot-empty')}
-                key={index}
-              >
+              <div ref={index === 2 ? slotRef : undefined} className="car-slot" key={index}>
                 {car ? (
-                  <img
-                    ref={index === 0 ? sizeRef : undefined}
-                    src={car}
-                    alt={'Luxury vehicle ' + (index + 1)}
-                  />
-                ) : (
-                  <span className="slot-marker">FEATURED</span>
-                )}
+                  <img ref={index === 0 ? sizeRef : undefined} src={car} alt={'Luxury vehicle ' + (index + 1)} />
+                ) : null}
               </div>
             ))}
           </div>
