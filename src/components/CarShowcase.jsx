@@ -144,8 +144,14 @@ const CarShowcase = ({ onLoadingProgress, onReady }) => {
       const y = geometry.startY + (geometry.targetY - geometry.startY) * safeProgress;
       const scale = 1 + (geometry.targetScale - 1) * safeProgress;
 
-      canvas.style.transform =
-        'translate3d(' + x + 'px,' + y + 'px,0) translate(-50%,-50%) scale(' + scale + ')';
+      gsap.set(canvas, {
+        x,
+        y,
+        xPercent: -50,
+        yPercent: -50,
+        scale,
+        force3D: true,
+      });
 
       const frameIndex = Math.min(
         frameLoaders.length - 1,
@@ -207,7 +213,7 @@ const CarShowcase = ({ onLoadingProgress, onReady }) => {
         trigger: section,
         start: 'top top',
         end: 'bottom bottom',
-        scrub: 0.18,
+        scrub: true,
         invalidateOnRefresh: true,
         onUpdate: (self) => {
           proxy.progress = self.progress;
