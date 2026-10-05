@@ -32,6 +32,11 @@ const CarShowcase = ({ onLoadingProgress, onReady }) => {
   const pendingProgressRef = useRef(null);
   const progressRef = useRef(0);
   const lastFrameRef = useRef(-1);
+  const loadingProgressRef = useRef(onLoadingProgress);
+  const readyRef = useRef(onReady);
+
+  loadingProgressRef.current = onLoadingProgress;
+  readyRef.current = onReady;
 
   useLayoutEffect(() => {
     const section = sectionRef.current;
@@ -40,7 +45,12 @@ const CarShowcase = ({ onLoadingProgress, onReady }) => {
     const slot = slotRef.current;
     const size = sizeRef.current;
 
-    if (!section || !stage || !canvas || !slot || !size || !frameLoaders.length) return;
+    if (!section || !stage || !canvas || !slot || !size) return;
+    if (!frameLoaders.length) {
+      loadingProgressRef.current?.(100);
+      readyRef.current?.();
+      return;
+    }
 
     const ctx = canvas.getContext('2d', { alpha: true });
     if (!ctx) return;
@@ -221,9 +231,7 @@ const CarShowcase = ({ onLoadingProgress, onReady }) => {
 
       const updateProgress = () => {
         loadedCount += 1;
-        if (onLoadingProgress) {
-          onLoadingProgress(Math.round((loadedCount / total) * 100));
-        }
+        loadingProgressRef.current?.(Math.round((loadedCount / total) * 100));
       };
 
       for (let start = 0; start < total; start += 8) {
@@ -234,8 +242,8 @@ const CarShowcase = ({ onLoadingProgress, onReady }) => {
         await Promise.all(batch);
       }
 
-      if (onLoadingProgress) onLoadingProgress(100);
-      if (onReady) onReady();
+      loadingProgressRef.current?.(100);
+      readyRef.current?.();
     };
 
     // Draw the first frame immediately, while the full sequence preloads for the loader.
