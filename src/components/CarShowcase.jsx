@@ -28,6 +28,8 @@ const CarShowcase = ({ onLoadingProgress, onReady }) => {
   const geometryRef = useRef(null);
   const progressRef = useRef(0);
   const lastFrameRef = useRef(-1);
+  const targetFrameRef = useRef(0);
+  const displayedFrameRef = useRef(0);
   const loadingProgressRef = useRef(onLoadingProgress);
   const readyRef = useRef(onReady);
 
@@ -74,7 +76,10 @@ const CarShowcase = ({ onLoadingProgress, onReady }) => {
         }
         const image = new Image();
         image.decoding = 'async';
-        image.onload = () => {
+        image.onload = async () => {
+          try {
+            if (image.decode) await image.decode();
+          } catch {}
           imageCache.set(index, image);
           loading.delete(index);
           resolve(image);
@@ -153,23 +158,10 @@ const CarShowcase = ({ onLoadingProgress, onReady }) => {
         force3D: true,
       });
 
-      const frameIndex = Math.min(
+      targetFrameRef.current = Math.min(
         frameLoaders.length - 1,
         Math.floor(safeProgress * (frameLoaders.length - 1)),
       );
-
-      if (frameIndex !== lastFrameRef.current) {
-        lastFrameRef.current = frameIndex;
-
-        const cached = imageCache.get(frameIndex);
-        if (cached) {
-          drawImage(cached);
-        } else {
-          requestFrame(frameIndex);
-        }
-
-        warmNearbyFrames(frameIndex);
-      }
     };
 
     const measure = () => {
@@ -189,6 +181,30 @@ const CarShowcase = ({ onLoadingProgress, onReady }) => {
 
       updateFromProgress(progressRef.current);
     };
+
+    const animateFrames = () => {
+      const target = targetFrameRef.current;
+      const current = displayedFrameRef.current;
+      const delta = target - current;
+
+      if (Math.abs(delta) > 0.01) {
+        const next = Math.abs(delta) < 1 ? target : current + delta * 0.32;
+        displayedFrameRef.current = next;
+        const frameIndex = clamp(Math.round(next), 0, frameLoaders.length - 1);
+
+        if (frameIndex !== lastFrameRef.current) {
+          lastFrameRef.current = frameIndex;
+          const cached = imageCache.get(frameIndex);
+          if (cached) drawImage(cached);
+          else requestFrame(frameIndex);
+          warmNearbyFrames(frameIndex);
+        }
+      }
+
+      frameRaf = requestAnimationFrame(animateFrames);
+    };
+
+    let frameRaf = requestAnimationFrame(animateFrames);
 
     const createScrollAnimation = () => {
       const geometry = geometryRef.current;
@@ -250,6 +266,8 @@ const CarShowcase = ({ onLoadingProgress, onReady }) => {
 
     // Draw the first frame immediately, while the full sequence preloads for the loader.
     lastFrameRef.current = 0;
+    targetFrameRef.current = 0;
+    displayedFrameRef.current = 0;
     loadFrame(0).then((image) => {
       if (image && lastFrameRef.current === 0) drawImage(image);
       warmNearbyFrames(0);
