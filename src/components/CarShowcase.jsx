@@ -26,10 +26,6 @@ const CarShowcase = ({ onLoadingProgress, onReady }) => {
   const slotRef = useRef(null);
   const sizeRef = useRef(null);
   const geometryRef = useRef(null);
-  const touchRef = useRef(null);
-  const rafRef = useRef(0);
-  const touchRafRef = useRef(0);
-  const pendingProgressRef = useRef(null);
   const progressRef = useRef(0);
   const lastFrameRef = useRef(-1);
   const loadingProgressRef = useRef(onLoadingProgress);
@@ -259,19 +255,10 @@ const CarShowcase = ({ onLoadingProgress, onReady }) => {
     requestAnimationFrame(() => ScrollTrigger.refresh());
     window.addEventListener('resize', measure);
     window.addEventListener('load', () => ScrollTrigger.refresh());
-    window.addEventListener('touchstart', onTouchStart, { passive: true });
-    window.addEventListener('touchmove', onTouchMove, { passive: true });
-    window.addEventListener('touchend', onTouchEnd, { passive: true });
-    window.addEventListener('touchcancel', onTouchEnd, { passive: true });
 
     return () => {
-      if (touchRafRef.current) cancelAnimationFrame(touchRafRef.current);
       scrollTrigger?.kill();
       window.removeEventListener('resize', measure);
-      window.removeEventListener('touchstart', onTouchStart);
-      window.removeEventListener('touchmove', onTouchMove);
-      window.removeEventListener('touchend', onTouchEnd);
-      window.removeEventListener('touchcancel', onTouchEnd);
       imageCache.clear();
       loading.clear();
     };
