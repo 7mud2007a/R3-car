@@ -98,7 +98,5 @@
 .site-loader{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:var(--color-dark);color:var(--color-cream)}
 .site-loader-content{width:min(82vw,420px);display:flex;flex-direction:column;align-items:center;text-align:center}
 .site-loader-brand{font-family:'Ethnocentric',var(--font-sans);font-size:clamp(2.2rem,10vw,4.5rem);letter-spacing:.06em;margin-bottom:2.25rem}
-.site-loader-line{width:100%;height:3px;background:rgba(245,231,198,.18);overflow:hidden}
-.site-loader-line span{display:block;height:100%;background:var(--color-orange);transition:width .18s ease-out}
 .site-loader-percent{margin-top:1.1rem;font-size:1.4rem;font-weight:700;letter-spacing:.08em}
 .site-loader-label{margin-top:.55rem;color:var(--color-text-muted);font-size:.7rem;letter-spacing:.22em}
