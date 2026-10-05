@@ -8,13 +8,15 @@ import InquiryForm from './components/InquiryForm';
 import Footer from './components/Footer';
 import './App.css';
 
+
 function App() {
   return (
     <div className="app-container">
+      {!siteReady && <div className="site-loader"><div className="site-loader-content"><span className="site-loader-brand">VELTRIX</span><div className="site-loader-line"><span style={{ width: loadingProgress + '%' }} /></div><span className="site-loader-percent">{loadingProgress}%</span><span className="site-loader-label">PREPARING EXPERIENCE</span></div></div>}
       <Navbar />
       <main>
         <Hero />
-        <CarShowcase />
+        <CarShowcase onLoadingProgress={setLoadingProgress} onReady={() => { setLoadingProgress(100); setSiteReady(true); }} />
         <About />
         <SocialMedia />
         <InquiryForm />
