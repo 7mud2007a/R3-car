@@ -73,7 +73,7 @@ const CarShowcase = () => {
           loading.delete(index);
           resolve(null);
         };
-        image.src = frames[index];
+        image.src = src;
       });
 
       loading.set(index, promise);
