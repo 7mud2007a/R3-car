@@ -1,4 +1,8 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useLayoutEffect, useRef } from 'react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+gsap.registerPlugin(ScrollTrigger);
 import car01 from '../assets/car-01.png';
 import car02 from '../assets/car-02.png';
 import car03 from '../assets/car-03.png';
@@ -29,7 +33,7 @@ const CarShowcase = ({ onLoadingProgress, onReady }) => {
   const progressRef = useRef(0);
   const lastFrameRef = useRef(-1);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const section = sectionRef.current;
     const stage = stageRef.current;
     const canvas = frameRef.current;
@@ -174,62 +178,41 @@ const CarShowcase = ({ onLoadingProgress, onReady }) => {
       updateFromProgress(progressRef.current);
     };
 
-    const updateFromScroll = () => {
-      rafRef.current = 0;
+    const createScrollAnimation = () => {
       const geometry = geometryRef.current;
-      if (!geometry || touchRef.current) return;
+      if (!geometry) return;
 
-      updateFromProgress(
-        clamp(-section.getBoundingClientRect().top / geometry.travel, 0, 1),
-      );
-    };
+      const proxy = { progress: progressRef.current };
 
-    const requestScrollUpdate = () => {
-      if (!rafRef.current) rafRef.current = requestAnimationFrame(updateFromScroll);
-    };
+      gsap.set(canvas, {
+        x: geometry.startX,
+        y: geometry.startY,
+        xPercent: -50,
+        yPercent: -50,
+        scale: 1,
+        force3D: true,
+      });
 
-    const flushTouch = () => {
-      touchRafRef.current = 0;
-      const progress = pendingProgressRef.current;
-      if (progress !== null) {
-        pendingProgressRef.current = null;
-        updateFromProgress(progress);
-      }
-    };
-
-    const onTouchStart = (event) => {
-      const touch = event.touches[0];
-      const geometry = geometryRef.current;
-      if (!touch || !geometry) return;
-
-      touchRef.current = {
-        startY: touch.clientY,
-        startProgress: progressRef.current,
-        travel: geometry.travel,
+      const render = () => {
+        updateFromProgress(proxy.progress);
       };
-    };
 
-    const onTouchMove = (event) => {
-      const touch = event.touches[0];
-      const gesture = touchRef.current;
-      if (!touch || !gesture) return;
+      const trigger = ScrollTrigger.create({
+        trigger: section,
+        start: 'top top',
+        end: 'bottom bottom',
+        scrub: 0.18,
+        invalidateOnRefresh: true,
+        onUpdate: (self) => {
+          proxy.progress = self.progress;
+          render();
+        },
+        onRefresh: () => {
+          measure();
+        },
+      });
 
-      const deltaY = gesture.startY - touch.clientY;
-
-      pendingProgressRef.current = clamp(
-        gesture.startProgress + (deltaY * 1.12) / gesture.travel,
-        0,
-        1,
-      );
-
-      if (!touchRafRef.current) {
-        touchRafRef.current = requestAnimationFrame(flushTouch);
-      }
-    };
-
-    const onTouchEnd = () => {
-      touchRef.current = null;
-      requestScrollUpdate();
+      return trigger;
     };
 
     const preloadAllFrames = async () => {
@@ -264,20 +247,18 @@ const CarShowcase = ({ onLoadingProgress, onReady }) => {
     preloadAllFrames();
 
     measure();
-    window.addEventListener('scroll', requestScrollUpdate, { passive: true });
+    const scrollTrigger = createScrollAnimation();
     window.addEventListener('resize', measure);
-    window.addEventListener('load', measure);
+    window.addEventListener('load', () => ScrollTrigger.refresh());
     window.addEventListener('touchstart', onTouchStart, { passive: true });
     window.addEventListener('touchmove', onTouchMove, { passive: true });
     window.addEventListener('touchend', onTouchEnd, { passive: true });
     window.addEventListener('touchcancel', onTouchEnd, { passive: true });
 
     return () => {
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
       if (touchRafRef.current) cancelAnimationFrame(touchRafRef.current);
-      window.removeEventListener('scroll', requestScrollUpdate);
+      scrollTrigger?.kill();
       window.removeEventListener('resize', measure);
-      window.removeEventListener('load', measure);
       window.removeEventListener('touchstart', onTouchStart);
       window.removeEventListener('touchmove', onTouchMove);
       window.removeEventListener('touchend', onTouchEnd);
@@ -285,7 +266,7 @@ const CarShowcase = ({ onLoadingProgress, onReady }) => {
       imageCache.clear();
       loading.clear();
     };
-  }, []);
+  }, [onLoadingProgress, onReady]);
 
   return (
     <section ref={sectionRef} className="car-motion-section" aria-label="Featured vehicle collection">
