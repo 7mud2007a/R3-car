@@ -10,6 +10,8 @@ import './App.css';
 
 
 function App() {
+  const [loadingProgress, setLoadingProgress] = useState(0);
+  const [siteReady, setSiteReady] = useState(false);
   return (
     <div className="app-container">
       {!siteReady && <div className="site-loader"><div className="site-loader-content"><span className="site-loader-brand">VELTRIX</span><div className="site-loader-line"><span style={{ width: loadingProgress + '%' }} /></div><span className="site-loader-percent">{loadingProgress}%</span><span className="site-loader-label">PREPARING EXPERIENCE</span></div></div>}
