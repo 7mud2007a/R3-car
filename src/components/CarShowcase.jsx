@@ -226,8 +226,8 @@ const CarShowcase = ({ onLoadingProgress, onReady }) => {
         }
       };
 
-      for (let start = 0; start < total; start += 18) {
-        const batch = frameLoaders.slice(start, start + 18).map((_, offset) => {
+      for (let start = 0; start < total; start += 8) {
+        const batch = frameLoaders.slice(start, start + 8).map((_, offset) => {
           const index = start + offset;
           return loadFrame(index).finally(updateProgress);
         });
@@ -248,6 +248,7 @@ const CarShowcase = ({ onLoadingProgress, onReady }) => {
 
     measure();
     const scrollTrigger = createScrollAnimation();
+    requestAnimationFrame(() => ScrollTrigger.refresh());
     window.addEventListener('resize', measure);
     window.addEventListener('load', () => ScrollTrigger.refresh());
     window.addEventListener('touchstart', onTouchStart, { passive: true });
