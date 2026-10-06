@@ -1,46 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import { Shield, Menu, X, Phone, Car } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import './Navbar.css';
-import veltrixLogo from '../assets/veltrix-logo.png';
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY > 40) {
-        setIsScrolled(true);
-      } else {
-        setIsScrolled(false);
-      }
-    };
-
+    const handleScroll = () => setIsScrolled(window.scrollY > 40);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const toggleMobileMenu = () => {
-    setIsMobileMenuOpen(!isMobileMenuOpen);
-  };
-
-  const closeMobileMenu = () => {
-    setIsMobileMenuOpen(false);
-  };
+  const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
+  const closeMobileMenu = () => setIsMobileMenuOpen(false);
 
   return (
     <header className={`navbar-header ${isScrolled ? 'scrolled' : ''}`}>
       <div className="container navbar-container">
-        {/* Brand / Logo */}
-        <a href="#" className="navbar-brand" onClick={closeMobileMenu}>
-          <img
-            src={veltrixLogo}
-            alt="VELTRIX"
-            className="brand-logo"
-          />
-        </a>
-
-        {/* Desktop Navigation */}
         <nav className="desktop-nav">
           <a href="#hero" className="nav-link">Showroom</a>
           <a href="#about" className="nav-link">About Us</a>
@@ -49,7 +26,6 @@ const Navbar = () => {
           <a href="#inquiry" className="nav-link btn-inquiry-nav">Inquire Now</a>
         </nav>
 
-        {/* Mobile Hamburger Button */}
         <button
           className="mobile-menu-toggle"
           onClick={toggleMobileMenu}
@@ -59,7 +35,6 @@ const Navbar = () => {
         </button>
       </div>
 
-      {/* Mobile Drawer Navigation */}
       <div className={`mobile-nav-overlay ${isMobileMenuOpen ? 'open' : ''}`}>
         <nav className="mobile-nav">
           <a href="#hero" className="mobile-nav-link" onClick={closeMobileMenu}>Showroom</a>
