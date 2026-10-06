@@ -57,6 +57,35 @@ const Navbar = () => {
       });
     };
 
+    const setActiveFromScroll = () => {
+      const sections = navItems
+        .map((item) => document.querySelector(item.href))
+        .filter(Boolean);
+
+      if (!sections.length) return;
+
+      const viewportPoint = window.innerHeight * 0.35;
+      let closestIndex = 0;
+      let closestDistance = Infinity;
+
+      sections.forEach((section, index) => {
+        const rect = section.getBoundingClientRect();
+        const distance = Math.abs((rect.top + rect.height / 2) - viewportPoint);
+        if (distance < closestDistance) {
+          closestDistance = distance;
+          closestIndex = index;
+        }
+      });
+
+      const active = nav.querySelector('.main-nav-list li.active');
+      const currentIndex = active ? [...active.parentElement.children].indexOf(active) : -1;
+
+      if (currentIndex !== closestIndex) {
+        const button = buttons[closestIndex];
+        if (button) triggerLight(button, closestIndex, currentIndex < 0 ? closestIndex : currentIndex);
+      }
+    };
+
     const triggerLight = (button, index, oldIndex) => {
       const x = getOffsetLeft(button);
       const oldButton = nav.querySelector('.main-nav-list li.active button');
@@ -148,6 +177,20 @@ const Navbar = () => {
     };
 
     window.addEventListener('resize', onResize);
+
+    let scrollTicking = false;
+    const onScroll = () => {
+      if (!scrollTicking) {
+        window.requestAnimationFrame(() => {
+          setActiveFromScroll();
+          scrollTicking = false;
+        });
+        scrollTicking = true;
+      }
+    };
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.requestAnimationFrame(setActiveFromScroll);
 
     return () => {
       window.removeEventListener('resize', onResize);
