@@ -45,6 +45,7 @@ const Navbar = () => {
     };
 
     const buttons = [...nav.querySelectorAll('.main-nav-list li button')];
+    let navigationLock = null;
     const setInitial = () => {
       const activeButton = nav.querySelector('.main-nav-list li.active button');
       if (!activeButton) return;
@@ -58,6 +59,8 @@ const Navbar = () => {
     };
 
     const setActiveFromScroll = () => {
+      if (navigationLock) return;
+
       const sections = navItems
         .map((item) => document.querySelector(item.href))
         .filter(Boolean);
@@ -160,9 +163,15 @@ const Navbar = () => {
         if (index === oldIndex) return;
 
         const target = document.querySelector(button.dataset.href);
-        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
         triggerLight(button, index, oldIndex);
+
+        if (navigationLock) window.clearTimeout(navigationLock);
+        navigationLock = window.setTimeout(() => {
+          navigationLock = null;
+          setActiveFromScroll();
+        }, 900);
+
+        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
       };
 
       button.addEventListener('click', handleClick);
@@ -202,6 +211,7 @@ const Navbar = () => {
         }
       });
 
+      if (navigationLock) window.clearTimeout(navigationLock);
       activeElement.remove();
     };
   }, []);
