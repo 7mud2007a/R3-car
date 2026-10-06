@@ -59,85 +59,79 @@
 }
 
 .veltrix-nav .main-nav-list li.active button {
-  color: var(--color-cream);
+  color: #ff5a00;
 }
 
 .veltrix-nav .main-nav-list li:not(.active):hover button {
-  color: var(--color-orange);
+  color: #fff1e6;
   transform: translateY(-1px);
 }
 
-/*
-  The indicator is positioned relative to the navbar itself.
-  JS always supplies the exact x/width from the active button's
-  getBoundingClientRect(), so it stays aligned after scroll/resize.
-*/
+/* Original GSAP electric beam / strike animation */
 .veltrix-nav .active-element {
+  --active-element-scale-x: 1;
+  --active-element-scale-y: 1;
   --active-element-show: 0;
+  --active-element-opacity: 0;
+  --active-element-width: 32px;
+  --active-element-strike-x: 0%;
+  --active-element-mask-position: 0%;
 
   position: absolute;
   left: 0;
+  top: auto;
   bottom: 7px;
-
-  width: 0;
-  height: 3px;
-
-  border-radius: 999px;
-  background: var(--color-cream);
+  height: 2.5px;
+  width: 32px;
+  border-radius: 2px;
+  background-color: #ff5a00;
+  box-shadow:
+    0 0 10px rgba(255, 90, 0, .8),
+    0 0 18px rgba(255, 119, 0, .35);
 
   opacity: var(--active-element-show);
-
   pointer-events: none;
-  z-index: 4;
-
-  transform: translate3d(0, 0, 0);
-  transform-origin: left center;
+  z-index: 6;
 
   will-change: transform, width, opacity;
-
-  transition:
-    width .55s cubic-bezier(.22, .61, .36, 1),
-    opacity .2s ease;
-
-  overflow: visible;
 }
 
 .veltrix-nav .active-element > svg,
 .veltrix-nav .active-element .strike {
   position: absolute;
-  left: 0;
-  right: auto;
+  right: 0;
   top: 50%;
-
-  width: 100%;
-
   transform: translateY(-50%);
-
-  opacity: var(--active-element-opacity, .95);
-
+  opacity: var(--active-element-opacity);
+  width: var(--active-element-width);
   pointer-events: none;
-  mix-blend-mode: screen;
 }
 
 .veltrix-nav .active-element > svg {
   display: block;
   overflow: visible;
-  height: 5px;
-
+  height: 6px;
   filter:
-    blur(.5px)
-    drop-shadow(0 0 4px rgba(210,105,30,.75))
-    drop-shadow(0 0 12px rgba(210,105,30,.45));
+    drop-shadow(0 0 4px #ff5a00)
+    drop-shadow(0 0 8px #ff7700)
+    drop-shadow(0 0 16px rgba(255, 90, 0, .45));
 }
 
 .veltrix-nav .active-element .strike {
-  padding: 18px 0;
-
+  padding: 24px 0;
+  -webkit-mask-image:
+    linear-gradient(
+      to right,
+      transparent calc(0% + var(--active-element-mask-position)),
+      black calc(15% + var(--active-element-mask-position)),
+      black 80%,
+      transparent
+    );
   mask-image:
     linear-gradient(
       to right,
-      transparent,
-      black 18%,
+      transparent calc(0% + var(--active-element-mask-position)),
+      black calc(15% + var(--active-element-mask-position)),
       black 80%,
       transparent
     );
@@ -146,9 +140,31 @@
 .veltrix-nav .active-element .strike svg {
   display: block;
   overflow: visible;
-
-  width: 100%;
   height: 12px;
+  width: calc(var(--active-element-width) * 2);
+  transform:
+    translate(var(--active-element-strike-x), 30%)
+    scale(var(--active-element-scale-x), var(--active-element-scale-y));
+}
+
+.veltrix-nav .active-element .strike svg:last-child {
+  transform:
+    translate(var(--active-element-strike-x), -30%)
+    scale(-1);
+}
+
+.veltrix-nav .active-element .strike svg g path:nth-child(2) {
+  filter: blur(1.5px);
+  stroke: #ff5a00;
+}
+
+.veltrix-nav .active-element .strike svg g path:nth-child(3) {
+  filter: blur(3px);
+  stroke: #ff9900;
+}
+
+.veltrix-nav.before .active-element {
+  transform: rotateY(180deg);
 }
 
 @media (max-width: 640px) {
@@ -182,7 +198,6 @@
   .veltrix-nav .active-element > svg,
   .veltrix-nav .active-element .strike,
   .veltrix-nav ul li button {
-    transition: none !important;
     animation: none !important;
   }
 }
