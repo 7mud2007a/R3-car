@@ -7,35 +7,35 @@ const SocialMedia = () => {
   const socialPlatforms = [
     {
       name: 'Instagram',
-      handle: '@auraluxurymotors',
+      handle: '@veltrix',
       icon: InstagramIcon,
       url: '#',
       description: 'Exclusive gallery & behind-the-scenes delivery videos'
     },
     {
       name: 'Facebook',
-      handle: 'Aura Luxury Motors',
+      handle: 'VELTRIX',
       icon: FacebookIcon,
       url: '#',
       description: 'Community news, VIP drive events & luxury car launches'
     },
     {
       name: 'X (Twitter)',
-      handle: '@AuraMotors',
+      handle: '@VELTRIX',
       icon: TwitterIcon,
       url: '#',
       description: 'Real-time inventory arrivals & automotive industry news'
     },
     {
       name: 'YouTube',
-      handle: 'Aura Luxury Motors Official',
+      handle: 'VELTRIX Official',
       icon: YoutubeIcon,
       url: '#',
       description: 'High-definition exhaust sounds & detailed hypercar reviews'
     },
     {
       name: 'LinkedIn',
-      handle: 'Aura Luxury Motors Group',
+      handle: 'VELTRIX Group',
       icon: LinkedinIcon,
       url: '#',
       description: 'Corporate news, executive acquisitions & career opportunities'
