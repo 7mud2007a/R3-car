@@ -1,4 +1,4 @@
-/* VELTRIX bottom navigation */
+/* VELTRIX bottom navigation + full-component digital glitch */
 .navbar-header {
   position: fixed;
   left: 0;
@@ -22,11 +22,15 @@
   border-radius: 18px;
   box-shadow: 0 14px 35px rgba(0,0,0,.32);
   opacity: 1;
-  --glitch-a: 0px;
-  --glitch-b: 0px;
-  --glitch-c: 0px;
-  will-change: opacity;
+  visibility: visible;
   isolation: isolate;
+  overflow: visible;
+}
+
+.veltrix-nav.is-hidden {
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
 }
 
 .veltrix-nav .main-nav-list,
@@ -76,16 +80,18 @@
   transform: translateY(-1px);
 }
 
-/* Real content glitch: duplicate the actual navbar text, then reveal it only through slices. */
+/* Every glitch layer is a complete copy of the navbar:
+   background + border + text + spacing. Only horizontal slices are revealed. */
 .veltrix-nav .glitch-layer {
   position: absolute;
   inset: 0;
   padding: 15px 24px 14px;
-  pointer-events: none;
-  z-index: 8;
-  opacity: 0;
-  overflow: hidden;
   border-radius: inherit;
+  pointer-events: none;
+  overflow: hidden;
+  opacity: 0;
+  z-index: 8;
+  will-change: transform, clip-path, opacity;
 }
 
 .veltrix-nav .glitch-layer .glitch-list {
@@ -93,51 +99,192 @@
   height: 100%;
 }
 
-.veltrix-nav .glitch-layer button {
+.veltrix-nav .glitch-layer .glitch-list button {
   color: inherit;
+  text-shadow: none;
 }
 
 .veltrix-nav .glitch-orange {
-  color: #d2691e;
-  background: transparent;
+  background: #d2691e;
+  border: 1px solid #d2691e;
+  color: #222222;
   clip-path: polygon(
-    0 11%, 100% 11%, 100% 18%, 0 18%,
-    0 34%, 100% 34%, 100% 41%, 0 41%,
-    0 64%, 100% 64%, 100% 72%, 0 72%,
-    0 88%, 100% 88%, 100% 94%, 0 94%
+    0 7%, 100% 7%, 100% 15%, 0 15%,
+    0 28%, 100% 28%, 100% 36%, 0 36%,
+    0 53%, 100% 53%, 100% 59%, 0 59%,
+    0 72%, 100% 72%, 100% 80%, 0 80%,
+    0 91%, 100% 91%, 100% 96%, 0 96%
   );
-  transform: translate3d(var(--glitch-a), 0, 0);
 }
 
 .veltrix-nav .glitch-cream {
-  color: #faf3e1;
-  background: transparent;
+  background: #faf3e1;
+  border: 1px solid #faf3e1;
+  color: #222222;
   clip-path: polygon(
-    0 3%, 100% 3%, 100% 8%, 0 8%,
-    0 25%, 100% 25%, 100% 30%, 0 30%,
-    0 48%, 100% 48%, 100% 54%, 0 54%,
-    0 77%, 100% 77%, 100% 83%, 0 83%
+    0 2%, 100% 2%, 100% 7%, 0 7%,
+    0 20%, 100% 20%, 100% 25%, 0 25%,
+    0 42%, 100% 42%, 100% 49%, 0 49%,
+    0 63%, 100% 63%, 100% 69%, 0 69%,
+    0 84%, 100% 84%, 100% 90%, 0 90%
   );
-  transform: translate3d(var(--glitch-b), 0, 0);
+}
+
+.veltrix-nav .glitch-dark {
+  background: #222222;
+  border: 1px solid #222222;
+  color: #faf3e1;
+  clip-path: polygon(
+    0 12%, 100% 12%, 100% 19%, 0 19%,
+    0 33%, 100% 33%, 100% 39%, 0 39%,
+    0 57%, 100% 57%, 100% 64%, 0 64%,
+    0 76%, 100% 76%, 100% 82%, 0 82%,
+    0 94%, 100% 94%, 100% 99%, 0 99%
+  );
+}
+
+/* The whole navbar fades as one object while the complete copies tear horizontally. */
+.veltrix-nav.glitch-out {
+  animation: veltrix-glitch-out .46s steps(1, end) forwards;
+}
+
+.veltrix-nav.glitch-in {
+  animation: veltrix-glitch-in .42s steps(1, end) both;
+}
+
+.veltrix-nav.glitch-out .glitch-orange,
+.veltrix-nav.glitch-out .glitch-cream,
+.veltrix-nav.glitch-out .glitch-dark {
+  opacity: 1;
 }
 
 .veltrix-nav.glitch-in .glitch-orange,
-.veltrix-nav.glitch-out .glitch-orange {
-  opacity: .95;
-}
-
 .veltrix-nav.glitch-in .glitch-cream,
-.veltrix-nav.glitch-out .glitch-cream {
-  opacity: .72;
+.veltrix-nav.glitch-in .glitch-dark {
+  opacity: 1;
 }
 
 .veltrix-nav.glitch-out .glitch-orange {
-  color: #d2691e;
+  animation: veltrix-slice-orange-out .46s steps(7, end) both;
 }
 
 .veltrix-nav.glitch-out .glitch-cream {
-  color: #222222;
-  text-shadow: 0 0 0 #222222;
+  animation: veltrix-slice-cream-out .46s steps(8, end) both;
+}
+
+.veltrix-nav.glitch-out .glitch-dark {
+  animation: veltrix-slice-dark-out .46s steps(6, end) both;
+}
+
+.veltrix-nav.glitch-in .glitch-orange {
+  animation: veltrix-slice-orange-in .42s steps(7, end) both;
+}
+
+.veltrix-nav.glitch-in .glitch-cream {
+  animation: veltrix-slice-cream-in .42s steps(8, end) both;
+}
+
+.veltrix-nav.glitch-in .glitch-dark {
+  animation: veltrix-slice-dark-in .42s steps(6, end) both;
+}
+
+.veltrix-nav.glitch-out .main-nav-list,
+.veltrix-nav.glitch-in .main-nav-list {
+  animation: veltrix-content-flicker .46s steps(5, end) both;
+}
+
+/* Orange/cream are the site's equivalent of RGB aberration. */
+.veltrix-nav.glitch-out .glitch-orange,
+.veltrix-nav.glitch-in .glitch-orange {
+  filter: drop-shadow(-7px 0 0 rgba(210,105,30,.42));
+}
+
+.veltrix-nav.glitch-out .glitch-cream,
+.veltrix-nav.glitch-in .glitch-cream {
+  filter: drop-shadow(7px 0 0 rgba(250,243,225,.38));
+}
+
+@keyframes veltrix-glitch-out {
+  0% { opacity: 1; }
+  18% { opacity: .98; }
+  38% { opacity: .82; }
+  58% { opacity: .58; }
+  76% { opacity: .3; }
+  92% { opacity: .08; }
+  100% { opacity: 0; }
+}
+
+@keyframes veltrix-glitch-in {
+  0% { opacity: 0; }
+  12% { opacity: .08; }
+  30% { opacity: .32; }
+  50% { opacity: .7; }
+  72% { opacity: .9; }
+  88% { opacity: 1; }
+  100% { opacity: 1; }
+}
+
+@keyframes veltrix-slice-orange-out {
+  0% { transform: translateX(0); clip-path: polygon(0 7%,100% 7%,100% 15%,0 15%,0 28%,100% 28%,100% 36%,0 36%,0 53%,100% 53%,100% 59%,0 59%,0 72%,100% 72%,100% 80%,0 80%,0 91%,100% 91%,100% 96%,0 96%); }
+  18% { transform: translateX(-13px); }
+  36% { transform: translateX(16px); clip-path: polygon(0 4%,100% 4%,100% 12%,0 12%,0 23%,100% 23%,100% 31%,0 31%,0 47%,100% 47%,100% 56%,0 56%,0 68%,100% 68%,100% 74%,0 74%,0 86%,100% 86%,100% 94%,0 94%); }
+  58% { transform: translateX(-22px); }
+  78% { transform: translateX(28px); clip-path: polygon(0 14%,100% 14%,100% 18%,0 18%,0 39%,100% 39%,100% 45%,0 45%,0 61%,100% 61%,100% 66%,0 66%,0 83%,100% 83%,100% 89%,0 89%); }
+  100% { transform: translateX(42px); opacity: 0; clip-path: inset(48% 0 48% 0); }
+}
+
+@keyframes veltrix-slice-cream-out {
+  0% { transform: translateX(0); }
+  22% { transform: translateX(12px); }
+  44% { transform: translateX(-18px); }
+  66% { transform: translateX(23px); clip-path: inset(22% 0 62% 0); }
+  84% { transform: translateX(-34px); clip-path: inset(44% 0 45% 0); }
+  100% { transform: translateX(38px); opacity: 0; clip-path: inset(49% 0 49% 0); }
+}
+
+@keyframes veltrix-slice-dark-out {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(8px); }
+  45% { transform: translateX(-14px); }
+  70% { transform: translateX(20px); clip-path: inset(35% 0 54% 0); }
+  88% { transform: translateX(-28px); clip-path: inset(47% 0 47% 0); }
+  100% { transform: translateX(32px); opacity: 0; clip-path: inset(50% 0 50% 0); }
+}
+
+@keyframes veltrix-slice-orange-in {
+  0% { transform: translateX(-44px); opacity: 0; clip-path: inset(50% 0 50% 0); }
+  18% { transform: translateX(27px); opacity: 1; }
+  38% { transform: translateX(-19px); }
+  58% { transform: translateX(15px); }
+  78% { transform: translateX(-8px); }
+  100% { transform: translateX(0); opacity: 0; }
+}
+
+@keyframes veltrix-slice-cream-in {
+  0% { transform: translateX(39px); opacity: 0; clip-path: inset(49% 0 49% 0); }
+  25% { transform: translateX(-23px); opacity: 1; }
+  48% { transform: translateX(16px); }
+  70% { transform: translateX(-11px); }
+  100% { transform: translateX(0); opacity: 0; }
+}
+
+@keyframes veltrix-slice-dark-in {
+  0% { transform: translateX(-32px); opacity: 0; clip-path: inset(50% 0 50% 0); }
+  22% { transform: translateX(18px); opacity: 1; }
+  46% { transform: translateX(-13px); }
+  72% { transform: translateX(8px); }
+  100% { transform: translateX(0); opacity: 0; }
+}
+
+@keyframes veltrix-content-flicker {
+  0%, 100% { opacity: 1; }
+  12% { opacity: .2; }
+  20% { opacity: 1; }
+  35% { opacity: .35; }
+  46% { opacity: .9; }
+  61% { opacity: .15; }
+  76% { opacity: .72; }
+  90% { opacity: .1; }
 }
 
 .veltrix-nav .active-element {
@@ -225,11 +372,12 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .veltrix-nav,
   .veltrix-nav .glitch-layer,
   .veltrix-nav .active-element,
   .veltrix-nav .active-element > svg,
   .veltrix-nav .active-element .strike {
-    transition: none !important;
     animation: none !important;
+    transition: none !important;
   }
 }
