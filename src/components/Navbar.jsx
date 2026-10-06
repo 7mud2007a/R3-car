@@ -115,11 +115,13 @@ const Navbar = () => {
         '--active-element-width': '42px',
         '--active-element-scale-x': 1,
         '--active-element-scale-y': 1,
-        '--active-element-opacity': 1,
-        delay: .48,
-        duration: .72,
+        '--active-element-opacity': 0,
+        delay: .5,
+        duration: .75,
         ease: 'power2.inOut',
         onComplete: () => {
+          // Keep only the normal active underline; the travelling beam fully clears.
+          activeElement.innerHTML = '';
           nav.classList.remove('before', 'after');
           gsap.set(activeElement, {
             x,
@@ -127,7 +129,7 @@ const Navbar = () => {
             '--active-element-width': '42px',
             '--active-element-scale-x': 1,
             '--active-element-scale-y': 1,
-            '--active-element-opacity': 1,
+            '--active-element-opacity': 0,
           });
         },
       });
