@@ -65,14 +65,15 @@ const Navbar = () => {
     let unlockTimer = 0;
     let navigationLock = false;
 
-    const getButtonPosition = (button) => {
+    const getOffsetLeft = (button) => {
       const buttonRect = button.getBoundingClientRect();
       const navRect = nav.getBoundingClientRect();
 
-      return {
-        left: buttonRect.left - navRect.left,
-        width: buttonRect.width,
-      };
+      return (
+        buttonRect.left -
+        navRect.left +
+        (buttonRect.width - activeElement.offsetWidth) / 2
+      );
     };
 
     const renderIndicator = (index, animate = true) => {
