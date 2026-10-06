@@ -52,40 +52,42 @@ const Navbar = () => {
     let navVisible = true;
     let scrollTicking = false;
 
+    const glitchIn = () => {
+      nav.classList.remove('glitch-out');
+      nav.classList.add('glitch-in');
+      gsap.killTweensOf(nav);
+      gsap.timeline({
+        onComplete: () => nav.classList.remove('glitch-in'),
+      })
+        .set(nav, { opacity: 1, '--glitch-a': '0px', '--glitch-b': '0px' })
+        .to(nav, { '--glitch-a': '-7px', '--glitch-b': '5px', duration: .06, ease: 'steps(2)' })
+        .to(nav, { '--glitch-a': '6px', '--glitch-b': '-4px', duration: .055, ease: 'steps(2)' })
+        .to(nav, { '--glitch-a': '-3px', '--glitch-b': '2px', duration: .05, ease: 'steps(2)' })
+        .to(nav, { opacity: 1, '--glitch-a': '0px', '--glitch-b': '0px', duration: .18, ease: 'power2.out' });
+    };
+
+    const glitchOut = () => {
+      nav.classList.remove('glitch-in');
+      nav.classList.add('glitch-out');
+      gsap.killTweensOf(nav);
+      gsap.timeline({
+        onComplete: () => {
+          nav.classList.remove('glitch-out');
+          gsap.set(nav, { opacity: 0, '--glitch-a': '0px', '--glitch-b': '0px' });
+        },
+      })
+        .set(nav, { opacity: 1, '--glitch-a': '0px', '--glitch-b': '0px' })
+        .to(nav, { '--glitch-a': '8px', '--glitch-b': '-5px', duration: .055, ease: 'steps(2)' })
+        .to(nav, { '--glitch-a': '-6px', '--glitch-b': '4px', duration: .055, ease: 'steps(2)' })
+        .to(nav, { '--glitch-a': '4px', '--glitch-b': '-3px', duration: .05, ease: 'steps(2)' })
+        .to(nav, { opacity: 0, '--glitch-a': '0px', '--glitch-b': '0px', duration: .18, ease: 'power2.out' });
+    };
+
     const setNavVisibility = (visible) => {
       if (visible === navVisible) return;
       navVisible = visible;
-
-      gsap.killTweensOf(nav);
-      gsap.timeline()
-        .set(nav, { '--glitch-slice': 0, '--glitch-shift': '0px', '--glitch-skew': '0deg' })
-        .to(nav, {
-          '--glitch-slice': visible ? 1 : 1,
-          '--glitch-shift': visible ? '0px' : '8px',
-          '--glitch-skew': visible ? '0deg' : '1deg',
-          duration: .08,
-          ease: 'steps(2)',
-        })
-        .to(nav, {
-          opacity: visible ? 1 : .72,
-          '--glitch-shift': visible ? '-5px' : '4px',
-          '--glitch-skew': visible ? '-1deg' : '1deg',
-          duration: .08,
-          ease: 'steps(2)',
-        })
-        .to(nav, {
-          opacity: visible ? 1 : 0,
-          '--glitch-shift': visible ? '0px' : '0px',
-          '--glitch-skew': '0deg',
-          duration: .22,
-          ease: 'power2.out',
-        })
-        .set(nav, {
-          opacity: visible ? 1 : 0,
-          '--glitch-slice': 0,
-          '--glitch-shift': '0px',
-          '--glitch-skew': '0deg',
-        });
+      if (visible) glitchIn();
+      else glitchOut();
     };
 
     const handleScroll = () => {
