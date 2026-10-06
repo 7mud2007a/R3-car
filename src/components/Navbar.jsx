@@ -18,20 +18,17 @@ const Navbar = () => {
   return (
     <header className={`navbar-header ${isScrolled ? 'scrolled' : ''}`}>
       <div className="container navbar-container">
-        <nav className="desktop-nav">
-          <a href="#hero" className="nav-link">Showroom</a>
-          <a href="#about" className="nav-link">About Us</a>
-          <a href="#experience" className="nav-link">Experience</a>
-          <a href="#social" className="nav-link">Connect</a>
-          <a href="#inquiry" className="nav-link btn-inquiry-nav">Inquire Now</a>
-        </nav>
-
         <button
           className="mobile-menu-toggle"
           onClick={toggleMobileMenu}
           aria-label="Toggle Navigation Menu"
+          aria-expanded={isMobileMenuOpen}
         >
-          {isMobileMenuOpen ? <X size={28} color="#FAF3E1" /> : <Menu size={28} color="#FAF3E1" />}
+          {isMobileMenuOpen ? (
+            <X size={28} color="#FAF3E1" />
+          ) : (
+            <Menu size={28} color="#FAF3E1" />
+          )}
         </button>
       </div>
 
