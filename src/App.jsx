@@ -2,6 +2,7 @@ import React from 'react';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import About from './components/About';
+import CarGallery from './components/CarGallery';
 import SocialMedia from './components/SocialMedia';
 import InquiryForm from './components/InquiryForm';
 import Footer from './components/Footer';
@@ -14,6 +15,7 @@ function App() {
       <main>
         <Hero />
         <About />
+        <CarGallery />
         <SocialMedia />
         <InquiryForm />
       </main>
