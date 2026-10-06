@@ -14,7 +14,13 @@ const Navbar = () => {
 
   useEffect(() => {
     const nav = navRef.current;
-    if (!nav) return;
+    if (!nav) return undefined;
+
+    const list = nav.querySelector('.main-nav-list');
+    const buttons = [...nav.querySelectorAll('.main-nav-list button')];
+    const items = [...nav.querySelectorAll('.main-nav-list li')];
+
+    if (!list || !buttons.length) return undefined;
 
     const activeElement = document.createElement('div');
     activeElement.className = 'active-element';
@@ -38,172 +44,195 @@ const Navbar = () => {
     `;
     nav.appendChild(activeElement);
 
-    const getOffsetLeft = (button) => {
+    let activeIndex = Math.max(
+      0,
+      items.findIndex((item) => item.classList.contains('active'))
+    );
+
+    let scrollRaf = 0;
+    let resizeRaf = 0;
+    let unlockTimer = 0;
+    let navigationLock = false;
+
+    const getButtonPosition = (button) => {
       const buttonRect = button.getBoundingClientRect();
       const navRect = nav.getBoundingClientRect();
-      return buttonRect.left - navRect.left + (buttonRect.width - activeElement.offsetWidth) / 2;
+
+      return {
+        left: buttonRect.left - navRect.left,
+        width: buttonRect.width,
+      };
     };
 
-    const buttons = [...nav.querySelectorAll('.main-nav-list li button')];
-    let navigationLock = null;
-    const setInitial = () => {
-      const activeButton = nav.querySelector('.main-nav-list li.active button');
-      if (!activeButton) return;
+    const renderIndicator = (index, animate = true) => {
+      const button = buttons[index];
+      if (!button) return;
 
-      const activeIndex = [...nav.querySelectorAll('.main-nav-list li')].indexOf(activeButton.parentElement);
-      gsap.set(activeElement, {
-        x: getOffsetLeft(activeButton),
+      const { left, width } = getButtonPosition(button);
+
+      gsap.killTweensOf(activeElement);
+
+      if (!animate) {
+        gsap.set(activeElement, {
+          x: left,
+          width,
+          '--active-element-show': 1,
+          '--active-element-opacity': 0,
+          rotateY: 0,
+        });
+        return;
+      }
+
+      gsap.to(activeElement, {
+        x: left,
+        width,
+        duration: 0.55,
+        ease: 'power2.out',
+        overwrite: true,
+      });
+
+      gsap.to(activeElement, {
         '--active-element-show': 1,
-        '--active-element-width': '44px',
+        duration: 0.18,
+        ease: 'power1.out',
+        overwrite: true,
       });
     };
 
-    const setActiveFromScroll = () => {
-      if (navigationLock) return;
+    const setActive = (index, animate = true) => {
+      if (index < 0 || index >= items.length || index === activeIndex) {
+        if (index === activeIndex) renderIndicator(index, animate);
+        return;
+      }
 
-      const sections = navItems
-        .map((item) => document.querySelector(item.href))
-        .filter(Boolean);
+      activeIndex = index;
 
-      if (!sections.length) return;
+      items.forEach((item, itemIndex) => {
+        item.classList.toggle('active', itemIndex === index);
+      });
 
-      const viewportPoint = window.innerHeight * 0.35;
-      let closestIndex = 0;
-      let closestDistance = Infinity;
+      renderIndicator(index, animate);
+    };
 
-      sections.forEach((section, index) => {
-        const rect = section.getBoundingClientRect();
-        const distance = Math.abs((rect.top + rect.height / 2) - viewportPoint);
-        if (distance < closestDistance) {
-          closestDistance = distance;
-          closestIndex = index;
+    const getCurrentSectionIndex = () => {
+      const viewportLine = Math.min(
+        window.innerHeight * 0.34,
+        Math.max(nav.getBoundingClientRect().bottom + 24, 120)
+      );
+
+      let currentIndex = 0;
+
+      navItems.forEach((item, index) => {
+        const section = document.querySelector(item.href);
+        if (!section) return;
+
+        if (section.getBoundingClientRect().top <= viewportLine) {
+          currentIndex = index;
         }
       });
 
-      const active = nav.querySelector('.main-nav-list li.active');
-      const currentIndex = active ? [...active.parentElement.children].indexOf(active) : -1;
+      return currentIndex;
+    };
 
-      if (currentIndex !== closestIndex) {
-        const button = buttons[closestIndex];
-        if (button) triggerLight(button, closestIndex, currentIndex < 0 ? closestIndex : currentIndex);
+    const updateScrollSpy = () => {
+      if (navigationLock) return;
+
+      const nextIndex = getCurrentSectionIndex();
+
+      if (nextIndex !== activeIndex) {
+        setActive(nextIndex, true);
       }
     };
 
-    const triggerLight = (button, index, oldIndex) => {
-      const x = getOffsetLeft(button);
-      const oldButton = nav.querySelector('.main-nav-list li.active button');
-      const oldX = oldButton ? getOffsetLeft(oldButton) : x;
-      const distance = Math.abs(x - oldX);
-      const direction = index > oldIndex ? 1 : -1;
+    const onScroll = () => {
+      if (scrollRaf) return;
 
-      nav.classList.add(direction > 0 ? 'after' : 'before');
-      nav.querySelectorAll('.main-nav-list li').forEach((item) => item.classList.remove('active'));
-      button.parentElement.classList.add('active');
-
-      gsap.killTweensOf(activeElement);
-      gsap.set(activeElement, {
-        x: oldX,
-        '--active-element-show': 1,
-        '--active-element-opacity': 1,
-        '--active-element-width': '42px',
+      scrollRaf = requestAnimationFrame(() => {
+        scrollRaf = 0;
+        updateScrollSpy();
       });
+    };
 
-      gsap.set(activeElement, { rotateY: direction < 0 ? 180 : 0 });
+    const onResize = () => {
+      if (resizeRaf) cancelAnimationFrame(resizeRaf);
 
-      activeElement.innerHTML = `
-        <svg viewBox="0 0 116 5" preserveAspectRatio="none" class="beam" aria-hidden="true">
-          <defs>
-            <linearGradient id="veltrix-beam-transition" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0" stop-color="#d2691e" stop-opacity="0"/>
-              <stop offset=".35" stop-color="#d2691e"/>
-              <stop offset="1" stop-color="#faf3e1"/>
-            </linearGradient>
-          </defs>
-          <path d="M0 2.5 L113 0.5 Q116 2.5 113 4.5 Z" fill="url(#veltrix-beam-transition)"/>
-        </svg>
-        <div class="strike" aria-hidden="true">
-          <svg viewBox="0 0 114 12" preserveAspectRatio="none">
-            <path d="M1 7 C15 1, 27 11, 42 5 S69 2, 82 7 S102 10, 113 4"
-              fill="none" stroke="#faf3e1" stroke-width=".75" stroke-linecap="round"/>
-          </svg>
-        </div>
-      `;
-
-      gsap.to(activeElement, {
-        x,
-        '--active-element-width': `${Math.min(Math.max(distance, 42), nav.offsetWidth - 60)}px`,
-        duration: .65,
-        ease: 'power2.out',
-      });
-
-      gsap.to(activeElement, {
-        '--active-element-width': '42px',
-        '--active-element-opacity': 0,
-        delay: .5,
-        duration: .75,
-        ease: 'power2.inOut',
-        onComplete: () => {
-          activeElement.innerHTML = '';
-          nav.classList.remove('before', 'after');
-          gsap.set(activeElement, {
-            x,
-            '--active-element-show': 1,
-            '--active-element-width': '42px',
-            '--active-element-opacity': 0,
-          });
-        },
+      resizeRaf = requestAnimationFrame(() => {
+        resizeRaf = 0;
+        renderIndicator(activeIndex, false);
       });
     };
 
     buttons.forEach((button, index) => {
       const handleClick = () => {
-        const active = nav.querySelector('.main-nav-list li.active');
-        const oldIndex = active ? [...active.parentElement.children].indexOf(active) : index;
-
-        if (index === oldIndex) return;
-
         const target = document.querySelector(button.dataset.href);
-        triggerLight(button, index, oldIndex);
+        if (!target) return;
 
-        if (navigationLock) window.clearTimeout(navigationLock);
-        navigationLock = window.setTimeout(() => {
-          navigationLock = null;
-          setActiveFromScroll();
-        }, 900);
+        if (unlockTimer) {
+          window.clearTimeout(unlockTimer);
+        }
 
-        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        navigationLock = true;
+        setActive(index, true);
+
+        const navHeight = nav.getBoundingClientRect().height;
+        const targetTop =
+          window.scrollY +
+          target.getBoundingClientRect().top -
+          navHeight -
+          8;
+
+        window.scrollTo({
+          top: Math.max(0, targetTop),
+          behavior: 'smooth',
+        });
+
+        unlockTimer = window.setTimeout(() => {
+          navigationLock = false;
+
+          const correctIndex = getCurrentSectionIndex();
+          setActive(correctIndex, false);
+        }, 850);
       };
 
       button.addEventListener('click', handleClick);
       button._veltrixHandler = handleClick;
     });
 
-    document.fonts.ready.then(setInitial);
+    const resizeObserver = new ResizeObserver(() => {
+      renderIndicator(activeIndex, false);
+    });
 
-    const onResize = () => {
-      const activeButton = nav.querySelector('.main-nav-list li.active button');
-      if (activeButton) gsap.set(activeElement, { x: getOffsetLeft(activeButton) });
-    };
+    resizeObserver.observe(nav);
+    resizeObserver.observe(list);
 
-    window.addEventListener('resize', onResize);
+    document.fonts.ready.then(() => {
+      const correctIndex = getCurrentSectionIndex();
+      activeIndex = correctIndex;
 
-    let scrollTicking = false;
-    const onScroll = () => {
-      if (!scrollTicking) {
-        window.requestAnimationFrame(() => {
-          setActiveFromScroll();
-          scrollTicking = false;
-        });
-        scrollTicking = true;
-      }
-    };
+      items.forEach((item, index) => {
+        item.classList.toggle('active', index === correctIndex);
+      });
+
+      renderIndicator(correctIndex, false);
+    });
 
     window.addEventListener('scroll', onScroll, { passive: true });
-    window.requestAnimationFrame(setActiveFromScroll);
+    window.addEventListener('resize', onResize);
+
+    requestAnimationFrame(() => {
+      const correctIndex = getCurrentSectionIndex();
+      activeIndex = correctIndex;
+
+      items.forEach((item, index) => {
+        item.classList.toggle('active', index === correctIndex);
+      });
+
+      renderIndicator(correctIndex, false);
+    });
 
     return () => {
-      window.removeEventListener('resize', onResize);
       window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onResize);
 
       buttons.forEach((button) => {
         if (button._veltrixHandler) {
@@ -211,26 +240,28 @@ const Navbar = () => {
         }
       });
 
-      if (navigationLock) window.clearTimeout(navigationLock);
+      if (scrollRaf) cancelAnimationFrame(scrollRaf);
+      if (resizeRaf) cancelAnimationFrame(resizeRaf);
+      if (unlockTimer) window.clearTimeout(unlockTimer);
+
+      resizeObserver.disconnect();
+      gsap.killTweensOf(activeElement);
       activeElement.remove();
     };
   }, []);
 
-  const renderItems = (className = '') => (
-    <ul className={className}>
-      {navItems.map((item, index) => (
-        <li className={index === 0 ? 'active' : ''} key={item.href}>
-          <button type="button" data-href={item.href}>{item.label}</button>
-        </li>
-      ))}
-    </ul>
-  );
-
   return (
     <header className="navbar-header">
       <nav ref={navRef} className="veltrix-nav" aria-label="Main navigation">
-        {renderItems('main-nav-list')}
-
+        <ul className="main-nav-list">
+          {navItems.map((item, index) => (
+            <li className={index === 0 ? 'active' : ''} key={item.href}>
+              <button type="button" data-href={item.href}>
+                {item.label}
+              </button>
+            </li>
+          ))}
+        </ul>
       </nav>
     </header>
   );
