@@ -48,6 +48,65 @@ const Navbar = () => {
 
     const buttons = [...nav.querySelectorAll('li button')];
 
+    let lastScrollY = window.scrollY;
+    let navVisible = true;
+    let scrollTicking = false;
+
+    const setNavVisibility = (visible) => {
+      if (visible === navVisible) return;
+      navVisible = visible;
+
+      gsap.killTweensOf(nav);
+      gsap.timeline()
+        .set(nav, { '--glitch-slice': 0, '--glitch-shift': '0px', '--glitch-skew': '0deg' })
+        .to(nav, {
+          '--glitch-slice': visible ? 1 : 1,
+          '--glitch-shift': visible ? '0px' : '8px',
+          '--glitch-skew': visible ? '0deg' : '1deg',
+          duration: .08,
+          ease: 'steps(2)',
+        })
+        .to(nav, {
+          opacity: visible ? 1 : .72,
+          '--glitch-shift': visible ? '-5px' : '4px',
+          '--glitch-skew': visible ? '-1deg' : '1deg',
+          duration: .08,
+          ease: 'steps(2)',
+        })
+        .to(nav, {
+          opacity: visible ? 1 : 0,
+          '--glitch-shift': visible ? '0px' : '0px',
+          '--glitch-skew': '0deg',
+          duration: .22,
+          ease: 'power2.out',
+        })
+        .set(nav, {
+          opacity: visible ? 1 : 0,
+          '--glitch-slice': 0,
+          '--glitch-shift': '0px',
+          '--glitch-skew': '0deg',
+        });
+    };
+
+    const handleScroll = () => {
+      const currentY = window.scrollY;
+      const delta = currentY - lastScrollY;
+      if (Math.abs(delta) > 2) {
+        setNavVisibility(delta < 0);
+        lastScrollY = currentY;
+      }
+      scrollTicking = false;
+    };
+
+    const onScroll = () => {
+      if (!scrollTicking) {
+        window.requestAnimationFrame(handleScroll);
+        scrollTicking = true;
+      }
+    };
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+
     const setInitial = () => {
       const activeButton = nav.querySelector('li.active button');
       if (!activeButton) return;
@@ -160,6 +219,7 @@ const Navbar = () => {
     window.addEventListener('resize', onResize);
     return () => {
       window.removeEventListener('resize', onResize);
+      window.removeEventListener('scroll', onScroll);
       buttons.forEach((button) => {
         if (button._veltrixHandler) button.removeEventListener('click', button._veltrixHandler);
       });
