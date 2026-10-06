@@ -123,18 +123,6 @@
   transform: rotateY(180deg);
 }
 
-.veltrix-nav::after {
-  content: '';
-  position: absolute;
-  left: 24px;
-  right: 24px;
-  bottom: 7px;
-  height: 1px;
-  background: rgba(250,243,225,.08);
-  pointer-events: none;
-  border-radius: 999px;
-}
-
 @media (max-width: 640px) {
   .navbar-header {
     padding: 0 10px 10px;
