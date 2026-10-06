@@ -1,5 +1,5 @@
 import React from 'react';
-import { Car, Mail, ArrowUp } from 'lucide-react';
+import { Mail, ArrowUp } from 'lucide-react';
 import { InstagramIcon, FacebookIcon, TwitterIcon, YoutubeIcon, LinkedinIcon } from './SocialIcons';
 import './Footer.css';
 
@@ -15,17 +15,8 @@ const Footer = () => {
         {/* Main Footer Row */}
         <div className="footer-main">
 
-          {/* Brand Info */}
+          {/* Footer Info */}
           <div className="footer-brand-col">
-            <a href="#" className="footer-brand">
-              <div className="brand-icon">
-                <Car size={24} color="#FF6D1F" />
-              </div>
-              <div className="brand-text">
-                <span className="brand-title">AURA</span>
-                <span className="brand-subtitle">LUXURY MOTORS</span>
-              </div>
-            </a>
             <p className="footer-brand-desc">
               Pinnacle automotive engineering and bespoke luxury showroom. Delivering world-class supercars and luxury automobiles to refined clientele worldwide.
             </p>
@@ -67,7 +58,7 @@ const Footer = () => {
         {/* Bottom Bar */}
         <div className="footer-bottom">
           <p className="copyright-text">
-            &copy; {new Date().getFullYear()} <strong>AURA Luxury Motors</strong>. All Rights Reserved. Crafted with Automotive Perfection.
+            &copy; {new Date().getFullYear()} <strong>Veltrix</strong>. All Rights Reserved. Crafted with Automotive Perfection.
           </p>
 
           <button onClick={scrollToTop} className="scroll-top-btn" aria-label="Scroll back to top">
