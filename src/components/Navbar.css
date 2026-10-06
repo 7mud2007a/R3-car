@@ -86,8 +86,8 @@
   border-radius: 2px;
   background-color: #ff5a00;
   box-shadow:
-    0 0 10px rgba(255, 90, 0, .8),
-    0 0 18px rgba(255, 119, 0, .35);
+    0 0 7px rgba(255, 90, 0, .55),
+    0 0 12px rgba(255, 119, 0, .22);
 
   opacity: var(--active-element-show);
   pointer-events: none;
@@ -112,9 +112,9 @@
   overflow: visible;
   height: 6px;
   filter:
-    drop-shadow(0 0 4px #ff5a00)
-    drop-shadow(0 0 8px #ff7700)
-    drop-shadow(0 0 16px rgba(255, 90, 0, .45));
+    drop-shadow(0 0 3px #ff5a00)
+    drop-shadow(0 0 6px #ff7700)
+    drop-shadow(0 0 10px rgba(255, 90, 0, .28));
 }
 
 .veltrix-nav .active-element .strike {
