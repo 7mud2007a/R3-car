@@ -45,46 +45,46 @@ const Navbar = () => {
     };
 
     const buttons = [...nav.querySelectorAll('.main-nav-list li button')];
-
     let lastScrollY = window.scrollY;
     let navVisible = true;
     let scrollTicking = false;
+    let glitchTimer = null;
+
+    const syncGlitchActive = (index) => {
+      nav.querySelectorAll('.glitch-list').forEach((list) => {
+        list.querySelectorAll('li').forEach((item, itemIndex) => {
+          item.classList.toggle('active', itemIndex === index);
+        });
+      });
+    };
+
+    const finishGlitch = (visible) => {
+      nav.classList.remove('glitch-in', 'glitch-out');
+      nav.classList.toggle('is-hidden', !visible);
+      nav.style.visibility = visible ? 'visible' : 'hidden';
+      nav.style.opacity = visible ? '1' : '0';
+    };
 
     const glitchIn = () => {
-      nav.classList.remove('glitch-out');
+      if (glitchTimer) window.clearTimeout(glitchTimer);
+      nav.classList.remove('is-hidden', 'glitch-out');
+      nav.style.visibility = 'visible';
+      nav.style.opacity = '1';
+      void nav.offsetWidth;
       nav.classList.add('glitch-in');
-      gsap.killTweensOf(nav);
 
-      gsap.timeline({
-        onComplete: () => {
-          nav.classList.remove('glitch-in');
-          gsap.set(nav, { '--glitch-a': '0px', '--glitch-b': '0px', '--glitch-c': '0px', opacity: 1 });
-        },
-      })
-        .set(nav, { opacity: 1, '--glitch-a': '0px', '--glitch-b': '0px', '--glitch-c': '0px' })
-        .to(nav, { '--glitch-a': '-10px', '--glitch-b': '7px', '--glitch-c': '3px', duration: .055, ease: 'steps(2)' })
-        .to(nav, { '--glitch-a': '8px', '--glitch-b': '-6px', '--glitch-c': '-4px', duration: .05, ease: 'steps(2)' })
-        .to(nav, { '--glitch-a': '-5px', '--glitch-b': '3px', '--glitch-c': '2px', duration: .045, ease: 'steps(2)' })
-        .to(nav, { '--glitch-a': '0px', '--glitch-b': '0px', '--glitch-c': '0px', duration: .12, ease: 'steps(2)' });
+      glitchTimer = window.setTimeout(() => finishGlitch(true), 420);
     };
 
     const glitchOut = () => {
-      nav.classList.remove('glitch-in');
+      if (glitchTimer) window.clearTimeout(glitchTimer);
+      nav.classList.remove('glitch-in', 'is-hidden');
+      nav.style.visibility = 'visible';
+      nav.style.opacity = '1';
+      void nav.offsetWidth;
       nav.classList.add('glitch-out');
-      gsap.killTweensOf(nav);
 
-      gsap.timeline({
-        onComplete: () => {
-          nav.classList.remove('glitch-out');
-          gsap.set(nav, { opacity: 0, '--glitch-a': '0px', '--glitch-b': '0px', '--glitch-c': '0px' });
-        },
-      })
-        .set(nav, { opacity: 1, '--glitch-a': '0px', '--glitch-b': '0px', '--glitch-c': '0px' })
-        .to(nav, { '--glitch-a': '10px', '--glitch-b': '-7px', '--glitch-c': '-3px', duration: .05, ease: 'steps(2)' })
-        .to(nav, { '--glitch-a': '-9px', '--glitch-b': '6px', '--glitch-c': '4px', duration: .05, ease: 'steps(2)' })
-        .to(nav, { '--glitch-a': '5px', '--glitch-b': '-3px', '--glitch-c': '-2px', duration: .045, ease: 'steps(2)' })
-        .to(nav, { '--glitch-a': '0px', '--glitch-b': '0px', '--glitch-c': '0px', duration: .06, ease: 'steps(2)' })
-        .to(nav, { opacity: 0, duration: .09, ease: 'power1.out' });
+      glitchTimer = window.setTimeout(() => finishGlitch(false), 460);
     };
 
     const setNavVisibility = (visible) => {
@@ -97,10 +97,12 @@ const Navbar = () => {
     const handleScroll = () => {
       const currentY = window.scrollY;
       const delta = currentY - lastScrollY;
+
       if (Math.abs(delta) > 2) {
         setNavVisibility(delta < 0);
         lastScrollY = currentY;
       }
+
       scrollTicking = false;
     };
 
@@ -116,6 +118,10 @@ const Navbar = () => {
     const setInitial = () => {
       const activeButton = nav.querySelector('.main-nav-list li.active button');
       if (!activeButton) return;
+
+      const activeIndex = [...nav.querySelectorAll('.main-nav-list li')].indexOf(activeButton.parentElement);
+      syncGlitchActive(activeIndex);
+
       gsap.set(activeElement, {
         x: getOffsetLeft(activeButton),
         '--active-element-show': 1,
@@ -133,6 +139,7 @@ const Navbar = () => {
       nav.classList.add(direction > 0 ? 'after' : 'before');
       nav.querySelectorAll('.main-nav-list li').forEach((item) => item.classList.remove('active'));
       button.parentElement.classList.add('active');
+      syncGlitchActive(index);
 
       gsap.killTweensOf(activeElement);
       gsap.set(activeElement, {
@@ -193,12 +200,15 @@ const Navbar = () => {
       const handleClick = () => {
         const active = nav.querySelector('.main-nav-list li.active');
         const oldIndex = active ? [...active.parentElement.children].indexOf(active) : index;
+
         if (index === oldIndex) return;
 
         const target = document.querySelector(button.dataset.href);
         if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
         triggerLight(button, index, oldIndex);
       };
+
       button.addEventListener('click', handleClick);
       button._veltrixHandler = handleClick;
     });
@@ -213,11 +223,16 @@ const Navbar = () => {
     window.addEventListener('resize', onResize);
 
     return () => {
+      if (glitchTimer) window.clearTimeout(glitchTimer);
       window.removeEventListener('resize', onResize);
       window.removeEventListener('scroll', onScroll);
+
       buttons.forEach((button) => {
-        if (button._veltrixHandler) button.removeEventListener('click', button._veltrixHandler);
+        if (button._veltrixHandler) {
+          button.removeEventListener('click', button._veltrixHandler);
+        }
       });
+
       activeElement.remove();
     };
   }, []);
@@ -236,8 +251,18 @@ const Navbar = () => {
     <header className="navbar-header">
       <nav ref={navRef} className="veltrix-nav" aria-label="Main navigation">
         {renderItems('main-nav-list')}
-        <div className="glitch-layer glitch-orange" aria-hidden="true">{renderItems('glitch-list')}</div>
-        <div className="glitch-layer glitch-cream" aria-hidden="true">{renderItems('glitch-list')}</div>
+
+        <div className="glitch-layer glitch-orange" aria-hidden="true">
+          {renderItems('glitch-list')}
+        </div>
+
+        <div className="glitch-layer glitch-cream" aria-hidden="true">
+          {renderItems('glitch-list')}
+        </div>
+
+        <div className="glitch-layer glitch-dark" aria-hidden="true">
+          {renderItems('glitch-list')}
+        </div>
       </nav>
     </header>
   );
