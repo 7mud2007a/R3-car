@@ -1,4 +1,4 @@
-/* VELTRIX bottom navigation — original supplied beam */
+/* VELTRIX bottom navigation */
 .navbar-header {
   position: fixed;
   left: 0;
@@ -24,71 +24,13 @@
   opacity: 1;
   --glitch-a: 0px;
   --glitch-b: 0px;
-  will-change: opacity, transform;
-  transform: translate3d(0, 0, 0);
-}
-
-.veltrix-nav.glitch-in,
-.veltrix-nav.glitch-out {
+  --glitch-c: 0px;
+  will-change: opacity;
   isolation: isolate;
 }
 
-.veltrix-nav.glitch-in::before,
-.veltrix-nav.glitch-in::after,
-.veltrix-nav.glitch-out::before,
-.veltrix-nav.glitch-out::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  pointer-events: none;
-  z-index: 10;
-}
-
-.veltrix-nav.glitch-in::before,
-.veltrix-nav.glitch-out::before {
-  background: #d2691e;
-  opacity: .82;
-  clip-path: polygon(
-    0 14%, 100% 14%, 100% 29%, 0 29%,
-    0 53%, 100% 53%, 100% 61%, 0 61%,
-    0 82%, 100% 82%, 100% 89%, 0 89%
-  );
-  transform: translate3d(var(--glitch-a), 0, 0);
-  mix-blend-mode: normal;
-}
-
-.veltrix-nav.glitch-in::after,
-.veltrix-nav.glitch-out::after {
-  background: #faf3e1;
-  opacity: .42;
-  clip-path: polygon(
-    0 4%, 100% 4%, 100% 10%, 0 10%,
-    0 38%, 100% 38%, 100% 45%, 0 45%,
-    0 70%, 100% 70%, 100% 76%, 0 76%
-  );
-  transform: translate3d(var(--glitch-b), 0, 0);
-  mix-blend-mode: screen;
-}
-
-.veltrix-nav.glitch-out::before {
-  background: #d2691e;
-  opacity: .9;
-}
-
-.veltrix-nav.glitch-out::after {
-  background: #222222;
-  opacity: .78;
-}
-
-.veltrix-nav.glitch-in::before,
-.veltrix-nav.glitch-out::before,
-.veltrix-nav.glitch-in::after,
-.veltrix-nav.glitch-out::after {
-  animation: none;
-}
-
-.veltrix-nav ul {
+.veltrix-nav .main-nav-list,
+.veltrix-nav .glitch-list {
   margin: 0;
   padding: 0;
   list-style: none;
@@ -96,6 +38,11 @@
   align-items: center;
   justify-content: space-between;
   gap: clamp(20px, 5vw, 70px);
+}
+
+.veltrix-nav .main-nav-list {
+  position: relative;
+  z-index: 3;
 }
 
 .veltrix-nav ul li {
@@ -120,23 +67,83 @@
   transition: color .25s ease, transform .25s ease;
 }
 
-.veltrix-nav ul li.active button {
+.veltrix-nav .main-nav-list li.active button {
   color: var(--color-cream);
 }
 
-.veltrix-nav ul li:not(.active):hover button {
+.veltrix-nav .main-nav-list li:not(.active):hover button {
   color: var(--color-orange);
   transform: translateY(-1px);
 }
 
-/* Exact supplied beam treatment */
+/* Real content glitch: duplicate the actual navbar text, then reveal it only through slices. */
+.veltrix-nav .glitch-layer {
+  position: absolute;
+  inset: 0;
+  padding: 15px 24px 14px;
+  pointer-events: none;
+  z-index: 8;
+  opacity: 0;
+  overflow: hidden;
+  border-radius: inherit;
+}
+
+.veltrix-nav .glitch-layer .glitch-list {
+  width: 100%;
+  height: 100%;
+}
+
+.veltrix-nav .glitch-layer button {
+  color: inherit;
+}
+
+.veltrix-nav .glitch-orange {
+  color: #d2691e;
+  background: transparent;
+  clip-path: polygon(
+    0 11%, 100% 11%, 100% 18%, 0 18%,
+    0 34%, 100% 34%, 100% 41%, 0 41%,
+    0 64%, 100% 64%, 100% 72%, 0 72%,
+    0 88%, 100% 88%, 100% 94%, 0 94%
+  );
+  transform: translate3d(var(--glitch-a), 0, 0);
+}
+
+.veltrix-nav .glitch-cream {
+  color: #faf3e1;
+  background: transparent;
+  clip-path: polygon(
+    0 3%, 100% 3%, 100% 8%, 0 8%,
+    0 25%, 100% 25%, 100% 30%, 0 30%,
+    0 48%, 100% 48%, 100% 54%, 0 54%,
+    0 77%, 100% 77%, 100% 83%, 0 83%
+  );
+  transform: translate3d(var(--glitch-b), 0, 0);
+}
+
+.veltrix-nav.glitch-in .glitch-orange,
+.veltrix-nav.glitch-out .glitch-orange {
+  opacity: .95;
+}
+
+.veltrix-nav.glitch-in .glitch-cream,
+.veltrix-nav.glitch-out .glitch-cream {
+  opacity: .72;
+}
+
+.veltrix-nav.glitch-out .glitch-orange {
+  color: #d2691e;
+}
+
+.veltrix-nav.glitch-out .glitch-cream {
+  color: #222222;
+  text-shadow: 0 0 0 #222222;
+}
+
 .veltrix-nav .active-element {
-  --active-element-scale-x: 1;
-  --active-element-scale-y: 1;
   --active-element-show: 0;
   --active-element-opacity: 0;
   --active-element-width: 42px;
-  --active-element-strike-x: 0%;
   position: absolute;
   left: 0;
   bottom: 7px;
@@ -145,7 +152,6 @@
   border-radius: 999px;
   background: var(--color-cream);
   opacity: var(--active-element-show);
-  transform-origin: center;
   pointer-events: none;
   z-index: 4;
 }
@@ -181,7 +187,6 @@
   overflow: visible;
   height: 12px;
   width: calc(var(--active-element-width) * 2);
-  transform: translate(var(--active-element-strike-x), 30%) scale(var(--active-element-scale-x), var(--active-element-scale-y));
 }
 
 .veltrix-nav.before .active-element {
@@ -199,7 +204,12 @@
     border-radius: 16px;
   }
 
-  .veltrix-nav ul {
+  .veltrix-nav .glitch-layer {
+    padding: 13px 14px 12px;
+  }
+
+  .veltrix-nav .main-nav-list,
+  .veltrix-nav .glitch-list {
     gap: 10px;
   }
 
@@ -215,6 +225,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .veltrix-nav .glitch-layer,
   .veltrix-nav .active-element,
   .veltrix-nav .active-element > svg,
   .veltrix-nav .active-element .strike {
