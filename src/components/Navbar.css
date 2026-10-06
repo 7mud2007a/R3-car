@@ -21,6 +21,15 @@
   border: 1px solid rgba(250, 243, 225, .14);
   border-radius: 18px;
   box-shadow: 0 14px 35px rgba(0,0,0,.32);
+  opacity: 1;
+  transform: translate3d(var(--glitch-shift, 0px), 0, 0) skewX(var(--glitch-skew, 0deg));
+  will-change: opacity, transform, clip-path;
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% calc(50% + (var(--glitch-slice, 0) * 2px)),
+    0 calc(50% - (var(--glitch-slice, 0) * 2px))
+  );
 }
 
 .veltrix-nav ul {
