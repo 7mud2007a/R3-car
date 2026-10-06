@@ -67,30 +67,51 @@
   transform: translateY(-1px);
 }
 
+/*
+  The indicator is positioned relative to the navbar itself.
+  JS always supplies the exact x/width from the active button's
+  getBoundingClientRect(), so it stays aligned after scroll/resize.
+*/
 .veltrix-nav .active-element {
   --active-element-show: 0;
-  --active-element-opacity: 0;
-  --active-element-width: 42px;
+
   position: absolute;
   left: 0;
   bottom: 7px;
+
+  width: 0;
   height: 3px;
-  width: 42px;
+
   border-radius: 999px;
   background: var(--color-cream);
+
   opacity: var(--active-element-show);
+
   pointer-events: none;
   z-index: 4;
+
+  transform: translate3d(0, 0, 0);
+  transform-origin: left center;
+
+  will-change: transform, width, opacity;
+
+  overflow: visible;
 }
 
 .veltrix-nav .active-element > svg,
 .veltrix-nav .active-element .strike {
   position: absolute;
-  right: 0;
+  left: 0;
+  right: auto;
   top: 50%;
+
+  width: 100%;
+
   transform: translateY(-50%);
-  opacity: var(--active-element-opacity);
-  width: var(--active-element-width);
+
+  opacity: .95;
+
+  pointer-events: none;
   mix-blend-mode: screen;
 }
 
@@ -98,6 +119,7 @@
   display: block;
   overflow: visible;
   height: 5px;
+
   filter:
     blur(.5px)
     drop-shadow(0 0 4px rgba(210,105,30,.75))
@@ -106,18 +128,23 @@
 
 .veltrix-nav .active-element .strike {
   padding: 18px 0;
-  mask-image: linear-gradient(to right, transparent, black 18%, black 80%, transparent);
+
+  mask-image:
+    linear-gradient(
+      to right,
+      transparent,
+      black 18%,
+      black 80%,
+      transparent
+    );
 }
 
 .veltrix-nav .active-element .strike svg {
   display: block;
   overflow: visible;
-  height: 12px;
-  width: calc(var(--active-element-width) * 2);
-}
 
-.veltrix-nav.before .active-element {
-  transform: rotateY(180deg);
+  width: 100%;
+  height: 12px;
 }
 
 @media (max-width: 640px) {
@@ -149,8 +176,9 @@
 @media (prefers-reduced-motion: reduce) {
   .veltrix-nav .active-element,
   .veltrix-nav .active-element > svg,
-  .veltrix-nav .active-element .strike {
-    animation: none !important;
+  .veltrix-nav .active-element .strike,
+  .veltrix-nav ul li button {
     transition: none !important;
+    animation: none !important;
   }
 }
