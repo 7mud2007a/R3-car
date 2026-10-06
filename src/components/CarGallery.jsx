@@ -54,6 +54,7 @@ const CarGallery = () => {
 
   return (
     <section
+      id="collection"
       ref={sectionRef}
       className="car-gallery"
       aria-label="Luxury car collection"
