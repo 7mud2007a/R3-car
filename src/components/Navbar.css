@@ -1,20 +1,26 @@
-/* VELTRIX navigation — adapted from the supplied animated navbar */
+/* VELTRIX bottom navigation */
 .navbar-header {
   position: fixed;
-  top: 0;
   left: 0;
   right: 0;
+  bottom: 0;
+  top: auto;
   z-index: 1000;
   display: flex;
   justify-content: center;
-  padding: 24px 20px;
+  padding: 0 20px 24px;
   pointer-events: none;
 }
 
 .veltrix-nav {
   position: relative;
-  z-index: 1;
+  width: min(680px, calc(100vw - 32px));
+  padding: 15px 24px 14px;
   pointer-events: auto;
+  background: #222222;
+  border: 1px solid rgba(250, 243, 225, .14);
+  border-radius: 4px;
+  box-shadow: 0 14px 35px rgba(0,0,0,.32);
 }
 
 .veltrix-nav ul {
@@ -23,24 +29,30 @@
   list-style: none;
   display: flex;
   align-items: center;
-  gap: clamp(28px, 5vw, 80px);
+  justify-content: space-between;
+  gap: clamp(20px, 5vw, 70px);
+}
+
+.veltrix-nav ul li {
+  position: relative;
+  z-index: 2;
 }
 
 .veltrix-nav ul li button {
   appearance: none;
-  border: 0;
+  border: none;
   cursor: pointer;
   background: transparent;
-  padding: 0;
+  padding: 3px 0 7px;
   margin: 0;
   font-family: var(--font-sans);
   font-weight: 600;
-  font-size: 14px;
-  line-height: 22px;
-  letter-spacing: 1.8px;
+  font-size: 12px;
+  line-height: 20px;
+  letter-spacing: 2px;
   text-transform: uppercase;
-  color: rgba(250, 243, 225, .72);
-  transition: color .25s ease;
+  color: rgba(250, 243, 225, .48);
+  transition: color .25s ease, transform .25s ease;
 }
 
 .veltrix-nav ul li.active button {
@@ -49,89 +61,109 @@
 
 .veltrix-nav ul li:not(.active):hover button {
   color: var(--color-orange);
+  transform: translateY(-1px);
 }
 
+/* The travelling light between sections */
 .veltrix-nav .active-element {
-  --active-element-scale-x: 1;
-  --active-element-scale-y: 1;
-  --active-element-show: 0;
-  --active-element-opacity: 0;
-  --active-element-width: 42px;
-  --active-element-strike-x: 0%;
+  --active-show: 0;
+  --active-opacity: 1;
+  --active-width: 44px;
+  --active-scale: 1;
   position: absolute;
   left: 0;
-  top: 31px;
+  bottom: 7px;
+  width: var(--active-width);
   height: 3px;
-  width: 42px;
-  border-radius: 2px;
-  background: var(--color-cream);
-  opacity: var(--active-element-show);
-  transform-origin: center;
+  border-radius: 999px;
+  opacity: var(--active-show);
   pointer-events: none;
+  transform-origin: center;
+  z-index: 4;
 }
 
-.veltrix-nav .active-element > svg,
-.veltrix-nav .active-element .strike {
+.active-beam {
   position: absolute;
-  right: 0;
+  inset: 0;
+  display: block;
+  border-radius: inherit;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(210,105,30,.55) 22%,
+    var(--color-orange) 50%,
+    var(--color-cream) 78%,
+    transparent 100%
+  );
+  box-shadow:
+    0 0 5px rgba(210,105,30,.9),
+    0 0 15px rgba(210,105,30,.65),
+    0 0 30px rgba(210,105,30,.28);
+  opacity: var(--active-opacity);
+  transform: scaleX(var(--active-scale));
+}
+
+.active-flare {
+  position: absolute;
+  left: 50%;
   top: 50%;
-  transform: translateY(-50%);
-  opacity: var(--active-element-opacity);
-  width: var(--active-element-width);
-  mix-blend-mode: screen;
-}
-
-.veltrix-nav .active-element > svg {
-  display: block;
-  overflow: visible;
-  height: 5px;
-  filter:
-    blur(.5px)
-    drop-shadow(0 0 4px rgba(210,105,30,.75))
-    drop-shadow(0 0 12px rgba(210,105,30,.45));
-}
-
-.veltrix-nav .active-element .strike {
-  padding: 18px 0;
-  mask-image: linear-gradient(to right, transparent, black 18%, black 80%, transparent);
-}
-
-.veltrix-nav .active-element .strike svg {
-  display: block;
-  overflow: visible;
+  width: 12px;
   height: 12px;
-  width: calc(var(--active-element-width) * 2);
-  transform: translate(var(--active-element-strike-x), 30%) scale(var(--active-element-scale-x), var(--active-element-scale-y));
+  border-radius: 50%;
+  background: var(--color-cream);
+  box-shadow:
+    0 0 5px var(--color-cream),
+    0 0 16px var(--color-orange),
+    0 0 35px rgba(210,105,30,.75);
+  opacity: var(--active-opacity);
+  transform: translate(-50%, -50%) scale(var(--active-scale));
 }
 
-.veltrix-nav.before .active-element {
-  transform: rotateY(180deg);
+.veltrix-nav::after {
+  content: '';
+  position: absolute;
+  left: 24px;
+  right: 24px;
+  bottom: 7px;
+  height: 1px;
+  background: rgba(250,243,225,.08);
+  pointer-events: none;
 }
 
 @media (max-width: 640px) {
   .navbar-header {
-    padding: 18px 14px;
+    padding: 0 10px 10px;
+  }
+
+  .veltrix-nav {
+    width: calc(100vw - 20px);
+    padding: 13px 14px 12px;
+    border-radius: 3px;
   }
 
   .veltrix-nav ul {
-    gap: 22px;
+    gap: 10px;
   }
 
   .veltrix-nav ul li button {
-    font-size: 10px;
-    letter-spacing: 1.2px;
+    font-size: 9px;
+    letter-spacing: 1.1px;
+    padding-bottom: 7px;
+  }
+
+  .veltrix-nav::after {
+    left: 14px;
+    right: 14px;
   }
 
   .veltrix-nav .active-element {
-    top: 26px;
+    bottom: 6px;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .veltrix-nav .active-element,
-  .veltrix-nav .active-element > svg,
-  .veltrix-nav .active-element .strike {
+  .active-beam,
+  .active-flare {
     transition: none !important;
-    animation: none !important;
   }
 }
