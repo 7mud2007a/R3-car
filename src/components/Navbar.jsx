@@ -11,7 +11,6 @@ const navItems = [
 
 const Navbar = () => {
   const navRef = useRef(null);
-  const activeRef = useRef(null);
 
   useEffect(() => {
     const nav = navRef.current;
@@ -38,7 +37,6 @@ const Navbar = () => {
       </div>
     `;
     nav.appendChild(activeElement);
-    activeRef.current = activeElement;
 
     const getOffsetLeft = (button) => {
       const buttonRect = button.getBoundingClientRect();
@@ -46,7 +44,7 @@ const Navbar = () => {
       return buttonRect.left - navRect.left + (buttonRect.width - activeElement.offsetWidth) / 2;
     };
 
-    const buttons = [...nav.querySelectorAll('li button')];
+    const buttons = [...nav.querySelectorAll('.main-nav-list li button')];
 
     let lastScrollY = window.scrollY;
     let navVisible = true;
@@ -56,31 +54,37 @@ const Navbar = () => {
       nav.classList.remove('glitch-out');
       nav.classList.add('glitch-in');
       gsap.killTweensOf(nav);
+
       gsap.timeline({
-        onComplete: () => nav.classList.remove('glitch-in'),
+        onComplete: () => {
+          nav.classList.remove('glitch-in');
+          gsap.set(nav, { '--glitch-a': '0px', '--glitch-b': '0px', '--glitch-c': '0px', opacity: 1 });
+        },
       })
-        .set(nav, { opacity: 1, '--glitch-a': '0px', '--glitch-b': '0px' })
-        .to(nav, { '--glitch-a': '-7px', '--glitch-b': '5px', duration: .06, ease: 'steps(2)' })
-        .to(nav, { '--glitch-a': '6px', '--glitch-b': '-4px', duration: .055, ease: 'steps(2)' })
-        .to(nav, { '--glitch-a': '-3px', '--glitch-b': '2px', duration: .05, ease: 'steps(2)' })
-        .to(nav, { opacity: 1, '--glitch-a': '0px', '--glitch-b': '0px', duration: .18, ease: 'power2.out' });
+        .set(nav, { opacity: 1, '--glitch-a': '0px', '--glitch-b': '0px', '--glitch-c': '0px' })
+        .to(nav, { '--glitch-a': '-10px', '--glitch-b': '7px', '--glitch-c': '3px', duration: .055, ease: 'steps(2)' })
+        .to(nav, { '--glitch-a': '8px', '--glitch-b': '-6px', '--glitch-c': '-4px', duration: .05, ease: 'steps(2)' })
+        .to(nav, { '--glitch-a': '-5px', '--glitch-b': '3px', '--glitch-c': '2px', duration: .045, ease: 'steps(2)' })
+        .to(nav, { '--glitch-a': '0px', '--glitch-b': '0px', '--glitch-c': '0px', duration: .12, ease: 'steps(2)' });
     };
 
     const glitchOut = () => {
       nav.classList.remove('glitch-in');
       nav.classList.add('glitch-out');
       gsap.killTweensOf(nav);
+
       gsap.timeline({
         onComplete: () => {
           nav.classList.remove('glitch-out');
-          gsap.set(nav, { opacity: 0, '--glitch-a': '0px', '--glitch-b': '0px' });
+          gsap.set(nav, { opacity: 0, '--glitch-a': '0px', '--glitch-b': '0px', '--glitch-c': '0px' });
         },
       })
-        .set(nav, { opacity: 1, '--glitch-a': '0px', '--glitch-b': '0px' })
-        .to(nav, { '--glitch-a': '8px', '--glitch-b': '-5px', duration: .055, ease: 'steps(2)' })
-        .to(nav, { '--glitch-a': '-6px', '--glitch-b': '4px', duration: .055, ease: 'steps(2)' })
-        .to(nav, { '--glitch-a': '4px', '--glitch-b': '-3px', duration: .05, ease: 'steps(2)' })
-        .to(nav, { opacity: 0, '--glitch-a': '0px', '--glitch-b': '0px', duration: .18, ease: 'power2.out' });
+        .set(nav, { opacity: 1, '--glitch-a': '0px', '--glitch-b': '0px', '--glitch-c': '0px' })
+        .to(nav, { '--glitch-a': '10px', '--glitch-b': '-7px', '--glitch-c': '-3px', duration: .05, ease: 'steps(2)' })
+        .to(nav, { '--glitch-a': '-9px', '--glitch-b': '6px', '--glitch-c': '4px', duration: .05, ease: 'steps(2)' })
+        .to(nav, { '--glitch-a': '5px', '--glitch-b': '-3px', '--glitch-c': '-2px', duration: .045, ease: 'steps(2)' })
+        .to(nav, { '--glitch-a': '0px', '--glitch-b': '0px', '--glitch-c': '0px', duration: .06, ease: 'steps(2)' })
+        .to(nav, { opacity: 0, duration: .09, ease: 'power1.out' });
     };
 
     const setNavVisibility = (visible) => {
@@ -110,38 +114,36 @@ const Navbar = () => {
     window.addEventListener('scroll', onScroll, { passive: true });
 
     const setInitial = () => {
-      const activeButton = nav.querySelector('li.active button');
+      const activeButton = nav.querySelector('.main-nav-list li.active button');
       if (!activeButton) return;
       gsap.set(activeElement, {
         x: getOffsetLeft(activeButton),
-        '--active-show': 1,
-        '--active-width': '44px',
+        '--active-element-show': 1,
+        '--active-element-width': '44px',
       });
     };
 
     const triggerLight = (button, index, oldIndex) => {
       const x = getOffsetLeft(button);
-      const oldButton = nav.querySelector('li.active button');
+      const oldButton = nav.querySelector('.main-nav-list li.active button');
       const oldX = oldButton ? getOffsetLeft(oldButton) : x;
       const distance = Math.abs(x - oldX);
       const direction = index > oldIndex ? 1 : -1;
 
       nav.classList.add(direction > 0 ? 'after' : 'before');
-      nav.querySelectorAll('li').forEach((item) => item.classList.remove('active'));
+      nav.querySelectorAll('.main-nav-list li').forEach((item) => item.classList.remove('active'));
       button.parentElement.classList.add('active');
 
       gsap.killTweensOf(activeElement);
       gsap.set(activeElement, {
         x: oldX,
-        '--active-show': 1,
-        '--active-opacity': 1,
-        '--active-element-scale-x': 1,
-        '--active-element-scale-y': 1,
+        '--active-element-show': 1,
         '--active-element-opacity': 1,
         '--active-element-width': '42px',
       });
 
       gsap.set(activeElement, { rotateY: direction < 0 ? 180 : 0 });
+
       activeElement.innerHTML = `
         <svg viewBox="0 0 116 5" preserveAspectRatio="none" class="beam" aria-hidden="true">
           <defs>
@@ -163,33 +165,24 @@ const Navbar = () => {
 
       gsap.to(activeElement, {
         x,
-        '--active-element-show': 1,
-        '--active-element-opacity': 1,
         '--active-element-width': `${Math.min(Math.max(distance, 42), nav.offsetWidth - 60)}px`,
-        '--active-element-strike-x': '-50%',
         duration: .65,
         ease: 'power2.out',
       });
 
-      // Smoothly retract the travelling light instead of killing it at the end.
       gsap.to(activeElement, {
         '--active-element-width': '42px',
-        '--active-element-scale-x': 1,
-        '--active-element-scale-y': 1,
         '--active-element-opacity': 0,
         delay: .5,
         duration: .75,
         ease: 'power2.inOut',
         onComplete: () => {
-          // Keep only the normal active underline; the travelling beam fully clears.
           activeElement.innerHTML = '';
           nav.classList.remove('before', 'after');
           gsap.set(activeElement, {
             x,
             '--active-element-show': 1,
             '--active-element-width': '42px',
-            '--active-element-scale-x': 1,
-            '--active-element-scale-y': 1,
             '--active-element-opacity': 0,
           });
         },
@@ -198,13 +191,12 @@ const Navbar = () => {
 
     buttons.forEach((button, index) => {
       const handleClick = () => {
-        const active = nav.querySelector('li.active');
+        const active = nav.querySelector('.main-nav-list li.active');
         const oldIndex = active ? [...active.parentElement.children].indexOf(active) : index;
         if (index === oldIndex) return;
 
         const target = document.querySelector(button.dataset.href);
         if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
         triggerLight(button, index, oldIndex);
       };
       button.addEventListener('click', handleClick);
@@ -214,11 +206,12 @@ const Navbar = () => {
     document.fonts.ready.then(setInitial);
 
     const onResize = () => {
-      const activeButton = nav.querySelector('li.active button');
+      const activeButton = nav.querySelector('.main-nav-list li.active button');
       if (activeButton) gsap.set(activeElement, { x: getOffsetLeft(activeButton) });
     };
 
     window.addEventListener('resize', onResize);
+
     return () => {
       window.removeEventListener('resize', onResize);
       window.removeEventListener('scroll', onScroll);
@@ -229,18 +222,22 @@ const Navbar = () => {
     };
   }, []);
 
+  const renderItems = (className = '') => (
+    <ul className={className}>
+      {navItems.map((item, index) => (
+        <li className={index === 0 ? 'active' : ''} key={item.href}>
+          <button type="button" data-href={item.href}>{item.label}</button>
+        </li>
+      ))}
+    </ul>
+  );
+
   return (
     <header className="navbar-header">
       <nav ref={navRef} className="veltrix-nav" aria-label="Main navigation">
-        <ul>
-          {navItems.map((item, index) => (
-            <li className={index === 0 ? 'active' : ''} key={item.href}>
-              <button type="button" data-href={item.href}>
-                {item.label}
-              </button>
-            </li>
-          ))}
-        </ul>
+        {renderItems('main-nav-list')}
+        <div className="glitch-layer glitch-orange" aria-hidden="true">{renderItems('glitch-list')}</div>
+        <div className="glitch-layer glitch-cream" aria-hidden="true">{renderItems('glitch-list')}</div>
       </nav>
     </header>
   );
