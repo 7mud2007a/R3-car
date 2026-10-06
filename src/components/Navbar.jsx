@@ -45,83 +45,11 @@ const Navbar = () => {
     };
 
     const buttons = [...nav.querySelectorAll('.main-nav-list li button')];
-    let lastScrollY = window.scrollY;
-    let navVisible = true;
-    let scrollTicking = false;
-    let glitchTimer = null;
-
-    const syncGlitchActive = (index) => {
-      nav.querySelectorAll('.glitch-list').forEach((list) => {
-        list.querySelectorAll('li').forEach((item, itemIndex) => {
-          item.classList.toggle('active', itemIndex === index);
-        });
-      });
-    };
-
-    const finishGlitch = (visible) => {
-      nav.classList.remove('glitch-in', 'glitch-out');
-      nav.classList.toggle('is-hidden', !visible);
-      nav.style.visibility = visible ? 'visible' : 'hidden';
-      nav.style.opacity = visible ? '1' : '0';
-    };
-
-    const glitchIn = () => {
-      if (glitchTimer) window.clearTimeout(glitchTimer);
-      nav.classList.remove('is-hidden', 'glitch-out');
-      nav.style.visibility = 'visible';
-      nav.style.opacity = '1';
-      void nav.offsetWidth;
-      nav.classList.add('glitch-in');
-
-      glitchTimer = window.setTimeout(() => finishGlitch(true), 420);
-    };
-
-    const glitchOut = () => {
-      if (glitchTimer) window.clearTimeout(glitchTimer);
-      nav.classList.remove('glitch-in', 'is-hidden');
-      nav.style.visibility = 'visible';
-      nav.style.opacity = '1';
-      void nav.offsetWidth;
-      nav.classList.add('glitch-out');
-
-      glitchTimer = window.setTimeout(() => finishGlitch(false), 460);
-    };
-
-    const setNavVisibility = (visible) => {
-      if (visible === navVisible) return;
-      navVisible = visible;
-      if (visible) glitchIn();
-      else glitchOut();
-    };
-
-    const handleScroll = () => {
-      const currentY = window.scrollY;
-      const delta = currentY - lastScrollY;
-
-      if (Math.abs(delta) > 2) {
-        setNavVisibility(delta < 0);
-        lastScrollY = currentY;
-      }
-
-      scrollTicking = false;
-    };
-
-    const onScroll = () => {
-      if (!scrollTicking) {
-        window.requestAnimationFrame(handleScroll);
-        scrollTicking = true;
-      }
-    };
-
-    window.addEventListener('scroll', onScroll, { passive: true });
-
     const setInitial = () => {
       const activeButton = nav.querySelector('.main-nav-list li.active button');
       if (!activeButton) return;
 
       const activeIndex = [...nav.querySelectorAll('.main-nav-list li')].indexOf(activeButton.parentElement);
-      syncGlitchActive(activeIndex);
-
       gsap.set(activeElement, {
         x: getOffsetLeft(activeButton),
         '--active-element-show': 1,
@@ -139,7 +67,6 @@ const Navbar = () => {
       nav.classList.add(direction > 0 ? 'after' : 'before');
       nav.querySelectorAll('.main-nav-list li').forEach((item) => item.classList.remove('active'));
       button.parentElement.classList.add('active');
-      syncGlitchActive(index);
 
       gsap.killTweensOf(activeElement);
       gsap.set(activeElement, {
@@ -223,7 +150,6 @@ const Navbar = () => {
     window.addEventListener('resize', onResize);
 
     return () => {
-      if (glitchTimer) window.clearTimeout(glitchTimer);
       window.removeEventListener('resize', onResize);
       window.removeEventListener('scroll', onScroll);
 
@@ -252,17 +178,6 @@ const Navbar = () => {
       <nav ref={navRef} className="veltrix-nav" aria-label="Main navigation">
         {renderItems('main-nav-list')}
 
-        <div className="glitch-layer glitch-orange" aria-hidden="true">
-          {renderItems('glitch-list')}
-        </div>
-
-        <div className="glitch-layer glitch-cream" aria-hidden="true">
-          {renderItems('glitch-list')}
-        </div>
-
-        <div className="glitch-layer glitch-dark" aria-hidden="true">
-          {renderItems('glitch-list')}
-        </div>
       </nav>
     </header>
   );
