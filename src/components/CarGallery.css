@@ -23,7 +23,7 @@
 .car-gallery-track {
   display: flex;
   align-items: center;
-  gap: clamp(18px, 2vw, 34px);
+  gap: 0;
   height: 100%;
   width: max-content;
   will-change: transform;
@@ -111,7 +111,7 @@
   bottom: 28px;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 0;
   font-family: var(--font-sans);
   font-size: 0.55rem;
   letter-spacing: 2px;
