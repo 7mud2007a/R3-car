@@ -1,0 +1,166 @@
+.car-gallery {
+  --gallery-height: calc(100vh * var(--car-count));
+  position: relative;
+  height: var(--gallery-height);
+  background: var(--color-dark, #222);
+  color: var(--color-cream, #faf3e1);
+  overflow: clip;
+}
+
+.car-gallery-sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  background:
+    radial-gradient(circle at 80% 50%, rgba(210, 105, 30, 0.08), transparent 30%),
+    #222;
+}
+
+.car-gallery-track {
+  display: flex;
+  align-items: center;
+  gap: clamp(18px, 2vw, 34px);
+  height: 100%;
+  width: max-content;
+  will-change: transform;
+  padding: 0 max(5vw, 24px);
+  transition: transform 40ms linear;
+}
+
+.car-gallery-card {
+  flex: 0 0 auto;
+  width: min(56.25vh, 100vw);
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.car-gallery-frame {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #181818;
+  isolation: isolate;
+}
+
+.car-gallery-frame img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  user-select: none;
+  -webkit-user-drag: none;
+  transform: scale(1.012);
+  transition: transform 1.2s cubic-bezier(.16, 1, .3, 1);
+}
+
+.car-gallery-card:hover img {
+  transform: scale(1.045);
+}
+
+.car-gallery-shade {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    linear-gradient(to bottom, rgba(0,0,0,.18), transparent 25%, transparent 68%, rgba(0,0,0,.28)),
+    linear-gradient(90deg, rgba(0,0,0,.12), transparent 30%, transparent 70%, rgba(0,0,0,.12));
+  pointer-events: none;
+}
+
+.car-gallery-index {
+  position: absolute;
+  z-index: 2;
+  left: 20px;
+  bottom: 18px;
+  font-family: var(--font-sans);
+  font-size: 0.62rem;
+  letter-spacing: 3px;
+  color: rgba(250,243,225,.65);
+}
+
+.car-gallery-intro {
+  position: absolute;
+  z-index: 5;
+  top: 28px;
+  left: max(5vw, 24px);
+  right: max(5vw, 24px);
+  display: flex;
+  justify-content: space-between;
+  pointer-events: none;
+  font-family: var(--font-sans);
+  font-size: 0.58rem;
+  letter-spacing: 3px;
+  color: rgba(250,243,225,.62);
+}
+
+.car-gallery-intro span {
+  color: var(--color-orange, #d2691e);
+}
+
+.car-gallery-intro i {
+  font-style: normal;
+}
+
+.car-gallery-hint {
+  position: absolute;
+  z-index: 5;
+  right: max(5vw, 24px);
+  bottom: 28px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--font-sans);
+  font-size: 0.55rem;
+  letter-spacing: 2px;
+  color: rgba(250,243,225,.48);
+  pointer-events: none;
+}
+
+.hint-line {
+  width: 46px;
+  height: 1px;
+  background: rgba(250,243,225,.48);
+}
+
+@media (max-width: 700px) {
+  .car-gallery {
+    --gallery-height: calc(100vh * var(--car-count));
+  }
+
+  .car-gallery-card {
+    width: min(56.25vh, 100vw);
+  }
+
+  .car-gallery-track {
+    gap: 12px;
+    padding: 0 20px;
+  }
+
+  .car-gallery-intro {
+    top: 20px;
+    left: 20px;
+    right: 20px;
+  }
+
+  .car-gallery-hint {
+    right: 20px;
+    bottom: 20px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .car-gallery-track {
+    transition: none;
+  }
+
+  .car-gallery-frame img {
+    transition: none;
+  }
+}
