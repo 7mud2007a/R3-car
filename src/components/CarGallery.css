@@ -127,7 +127,7 @@
 
 @media (max-width: 700px) {
   .car-gallery-track {
-    gap: 12px;
+    gap: 0;
     padding: 0;
   }
 
