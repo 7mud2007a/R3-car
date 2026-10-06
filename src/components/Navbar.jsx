@@ -79,32 +79,115 @@ const Navbar = () => {
       const button = buttons[index];
       if (!button) return;
 
-      const { left, width } = getButtonPosition(button);
-
-      gsap.killTweensOf(activeElement);
+      const x = getOffsetLeft(button);
 
       if (!animate) {
+        gsap.killTweensOf(activeElement);
         gsap.set(activeElement, {
-          x: left,
-          width,
-          '--active-element-show': 1,
-          '--active-element-opacity': 0,
+          x,
+          '--active-element-show': '1',
+          '--active-element-opacity': '0',
+          '--active-element-width': '32px',
+          '--active-element-scale-x': '1',
+          '--active-element-scale-y': '1',
+          '--active-element-strike-x': '0%',
+          '--active-element-mask-position': '0%',
           rotateY: 0,
         });
         return;
       }
 
+      gsap.to(activeElement, {
+        x,
+        duration: 0.6,
+        ease: 'power2.inOut',
+        overwrite: true,
+      });
+    };
+
+    const animateTo = (button, index) => {
+      const active = navElement.querySelector('ul li.active');
+      if (!active || index === activeIndex) return;
+
+      if (navElement.classList.contains('before') || navElement.classList.contains('after')) {
+        return;
+      }
+
+      const oldIndex = [...active.parentElement.children].indexOf(active);
+      const x = getOffsetLeft(button);
+      const oldX = getOffsetLeft(active.querySelector('button'));
+      const spacing = Math.abs(x - oldX);
+      const direction = index > oldIndex ? 'after' : 'before';
+
+      navElement.classList.add(direction);
+      active.classList.remove('active');
+      button.parentElement.classList.add('active');
+      activeIndex = index;
+
+      gsap.killTweensOf(activeElement);
+
       gsap.set(activeElement, {
-        '--active-element-show': 1,
-        '--active-element-opacity': 1,
+        rotateY: direction === 'before' ? '180deg' : '0deg',
+        '--active-element-scale-x': '1',
+        '--active-element-scale-y': '1',
+        '--active-element-width': '32px',
+        '--active-element-mask-position': '0%',
+        '--active-element-strike-x': '0%',
       });
 
       gsap.to(activeElement, {
-        x: left,
-        width,
-        duration: 0.68,
-        ease: 'power3.out',
+        keyframes: [
+          {
+            '--active-element-width': `${Math.min(
+              spacing,
+              Math.max(navElement.offsetWidth - 60, 32)
+            )}px`,
+            duration: 0.3,
+            ease: 'power2.out',
+            onStart: () => {
+              createSVG(activeElement);
+              gsap.to(activeElement, {
+                '--active-element-opacity': 1,
+                duration: 0.1,
+              });
+            },
+          },
+          {
+            '--active-element-scale-x': '0',
+            '--active-element-scale-y': '.25',
+            '--active-element-width': '0px',
+            duration: 0.3,
+            onStart: () => {
+              gsap.to(activeElement, {
+                '--active-element-mask-position': '40%',
+                duration: 0.5,
+              });
+              gsap.to(activeElement, {
+                '--active-element-opacity': 0,
+                delay: 0.45,
+                duration: 0.25,
+              });
+            },
+            onComplete: () => {
+              activeElement.innerHTML = '';
+              navElement.classList.remove('before', 'after');
+              activeElement.removeAttribute('style');
+              gsap.set(activeElement, {
+                x: getOffsetLeft(button),
+                '--active-element-show': '1',
+              });
+            },
+          },
+        ],
         overwrite: true,
+      });
+
+      gsap.to(activeElement, {
+        x,
+        '--active-element-strike-x': '-50%',
+        duration: 0.6,
+        ease: 'power2.inOut',
+        overwrite: false,
       });
     };
 
@@ -149,7 +232,7 @@ const Navbar = () => {
       const nextIndex = getCurrentSectionIndex();
 
       if (nextIndex !== activeIndex) {
-        setActive(nextIndex, true);
+        animateTo(buttons[nextIndex], nextIndex);
       }
     };
 
@@ -181,7 +264,7 @@ const Navbar = () => {
         }
 
         navigationLock = true;
-        setActive(index, true);
+        animateTo(button, index);
 
         const navHeight = nav.getBoundingClientRect().height;
         const targetTop =
