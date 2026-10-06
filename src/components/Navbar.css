@@ -22,14 +22,71 @@
   border-radius: 18px;
   box-shadow: 0 14px 35px rgba(0,0,0,.32);
   opacity: 1;
-  transform: translate3d(var(--glitch-shift, 0px), 0, 0) skewX(var(--glitch-skew, 0deg));
-  will-change: opacity, transform, clip-path;
+  --glitch-a: 0px;
+  --glitch-b: 0px;
+  will-change: opacity, transform;
+  transform: translate3d(0, 0, 0);
+}
+
+.veltrix-nav.glitch-in,
+.veltrix-nav.glitch-out {
+  isolation: isolate;
+}
+
+.veltrix-nav.glitch-in::before,
+.veltrix-nav.glitch-in::after,
+.veltrix-nav.glitch-out::before,
+.veltrix-nav.glitch-out::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.veltrix-nav.glitch-in::before,
+.veltrix-nav.glitch-out::before {
+  background: #d2691e;
+  opacity: .82;
   clip-path: polygon(
-    0 0,
-    100% 0,
-    100% calc(50% + (var(--glitch-slice, 0) * 2px)),
-    0 calc(50% - (var(--glitch-slice, 0) * 2px))
+    0 14%, 100% 14%, 100% 29%, 0 29%,
+    0 53%, 100% 53%, 100% 61%, 0 61%,
+    0 82%, 100% 82%, 100% 89%, 0 89%
   );
+  transform: translate3d(var(--glitch-a), 0, 0);
+  mix-blend-mode: normal;
+}
+
+.veltrix-nav.glitch-in::after,
+.veltrix-nav.glitch-out::after {
+  background: #faf3e1;
+  opacity: .42;
+  clip-path: polygon(
+    0 4%, 100% 4%, 100% 10%, 0 10%,
+    0 38%, 100% 38%, 100% 45%, 0 45%,
+    0 70%, 100% 70%, 100% 76%, 0 76%
+  );
+  transform: translate3d(var(--glitch-b), 0, 0);
+  mix-blend-mode: screen;
+}
+
+.veltrix-nav.glitch-out::before {
+  background: #d2691e;
+  opacity: .9;
+}
+
+.veltrix-nav.glitch-out::after {
+  background: #222222;
+  opacity: .78;
+}
+
+.veltrix-nav.glitch-in::before,
+.veltrix-nav.glitch-out::before,
+.veltrix-nav.glitch-in::after,
+.veltrix-nav.glitch-out::after {
+  animation: none;
+}
 }
 
 .veltrix-nav ul {
