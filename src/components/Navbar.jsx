@@ -1,201 +1,168 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
+import { gsap } from 'gsap';
 import './Navbar.css';
 
 const navItems = [
-  { label: 'Showroom', short: 'Home', href: '#hero' },
-  { label: 'About Us', short: 'About', href: '#about' },
-  { label: 'Experience', short: 'Drive', href: '#experience' },
-  { label: 'Connect', short: 'Connect', href: '#social' },
+  { label: 'Home', href: '#hero' },
+  { label: 'About', href: '#about' },
+  { label: 'Collection', href: '#collection' },
+  { label: 'Contact', href: '#inquiry' },
 ];
 
 const Navbar = () => {
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isBottomNavVisible, setIsBottomNavVisible] = useState(false);
-  const [activeSection, setActiveSection] = useState('hero');
-  const [direction, setDirection] = useState('down');
+  const navRef = useRef(null);
+  const activeRef = useRef(null);
 
   useEffect(() => {
-    let lastY = window.scrollY;
-    let ticking = false;
+    const nav = navRef.current;
+    if (!nav) return;
 
-    const updateScrollState = () => {
-      const currentY = window.scrollY;
-      const delta = currentY - lastY;
+    const activeElement = document.createElement('div');
+    activeElement.className = 'active-element';
+    nav.appendChild(activeElement);
+    activeRef.current = activeElement;
 
-      setIsScrolled(currentY > 40);
+    const getOffsetLeft = (element) => {
+      const elementRect = element.getBoundingClientRect();
+      const navRect = nav.getBoundingClientRect();
 
-      if (Math.abs(delta) > 3 && !isMobileMenuOpen) {
-        setDirection(delta > 0 ? 'down' : 'up');
-        if (currentY > 120) setIsBottomNavVisible(delta < 0);
-        if (currentY < 80) setIsBottomNavVisible(false);
+      return elementRect.left - navRect.left +
+        (elementRect.width - activeElement.offsetWidth) / 2;
+    };
+
+    const buttons = [...nav.querySelectorAll('li button')];
+
+    const setInitial = () => {
+      const activeButton = nav.querySelector('li.active button');
+      if (!activeButton) return;
+
+      gsap.set(activeElement, {
+        x: getOffsetLeft(activeButton),
+        '--active-element-show': 1,
+        '--active-element-width': '42px',
+      });
+    };
+
+    const createSVG = () => {
+      activeElement.innerHTML = `
+        <svg viewBox="0 0 116 5" preserveAspectRatio="none" class="beam" aria-hidden="true">
+          <defs>
+            <linearGradient id="veltrix-beam" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0" stop-color="#d2691e" stop-opacity="0"/>
+              <stop offset=".35" stop-color="#d2691e"/>
+              <stop offset="1" stop-color="#faf3e1"/>
+            </linearGradient>
+          </defs>
+          <path d="M0 2.5 L113 0.5 Q116 2.5 113 4.5 Z" fill="url(#veltrix-beam)"/>
+        </svg>
+        <div class="strike" aria-hidden="true">
+          <svg viewBox="0 0 114 12" preserveAspectRatio="none">
+            <path d="M1 7 C15 1, 27 11, 42 5 S69 2, 82 7 S102 10, 113 4"
+              fill="none" stroke="#faf3e1" stroke-width=".75" stroke-linecap="round"/>
+          </svg>
+        </div>
+      `;
+    };
+
+    const activate = (button, index, immediate = false) => {
+      const current = nav.querySelector('li.active');
+      const oldIndex = current ? [...current.parentElement.children].indexOf(current) : index;
+      const x = getOffsetLeft(button);
+      const spacing = Math.abs(x - (current ? getOffsetLeft(current.querySelector('button')) : x));
+
+      nav.querySelectorAll('li').forEach((item) => item.classList.remove('active'));
+      button.parentElement.classList.add('active');
+
+      if (immediate) {
+        gsap.set(activeElement, {
+          x,
+          '--active-element-show': 1,
+          '--active-element-width': '42px',
+          '--active-element-opacity': 0,
+          '--active-element-scale-x': 1,
+          '--active-element-scale-y': 1,
+        });
+        return;
       }
 
-      lastY = currentY;
-      ticking = false;
+      const direction = index > oldIndex ? 'after' : 'before';
+      nav.classList.add(direction);
+      gsap.set(activeElement, { rotateY: direction === 'before' ? 180 : 0 });
+
+      createSVG();
+
+      gsap.to(activeElement, {
+        x,
+        '--active-element-show': 1,
+        '--active-element-opacity': 1,
+        '--active-element-width': `${Math.min(Math.max(spacing, 42), nav.offsetWidth - 60)}px`,
+        '--active-element-strike-x': '-50%',
+        duration: .55,
+        ease: 'power2.out',
+      });
+
+      gsap.to(activeElement, {
+        '--active-element-scale-x': 0,
+        '--active-element-scale-y': .25,
+        '--active-element-opacity': 0,
+        delay: .42,
+        duration: .32,
+        ease: 'power2.in',
+        onComplete: () => {
+          activeElement.innerHTML = '';
+          nav.classList.remove('before', 'after');
+          gsap.set(activeElement, {
+            x: getOffsetLeft(button),
+            '--active-element-show': 1,
+            '--active-element-width': '42px',
+            '--active-element-scale-x': 1,
+            '--active-element-scale-y': 1,
+          });
+        },
+      });
     };
 
-    const handleScroll = () => {
-      if (!ticking) {
-        window.requestAnimationFrame(updateScrollState);
-        ticking = true;
-      }
+    const handleClick = (event, button, index) => {
+      event.preventDefault();
+      const href = button.dataset.href;
+      const target = document.querySelector(href);
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      activate(button, index);
     };
 
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [isMobileMenuOpen]);
+    buttons.forEach((button, index) => {
+      button.addEventListener('click', (event) => handleClick(event, button, index));
+    });
 
-  useEffect(() => {
-    const sections = navItems
-      .map((item) => document.querySelector(item.href))
-      .filter(Boolean);
-
-    if (!sections.length) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visible = entries
-          .filter((entry) => entry.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-
-        if (visible) setActiveSection(visible.target.id);
-      },
-      { rootMargin: '-35% 0px -45% 0px', threshold: [0.05, 0.2, 0.5, 0.8] }
-    );
-
-    sections.forEach((section) => observer.observe(section));
-    return () => observer.disconnect();
-  }, []);
-
-  useEffect(() => {
-    document.body.classList.toggle('menu-open', isMobileMenuOpen);
-
-    const handleKeyDown = (event) => {
-      if (event.key === 'Escape') setIsMobileMenuOpen(false);
+    const resize = () => {
+      const activeButton = nav.querySelector('li.active button');
+      if (activeButton) gsap.set(activeElement, { x: getOffsetLeft(activeButton) });
     };
 
-    if (isMobileMenuOpen) document.addEventListener('keydown', handleKeyDown);
+    document.fonts.ready.then(setInitial);
+    window.addEventListener('resize', resize);
 
     return () => {
-      document.body.classList.remove('menu-open');
-      document.removeEventListener('keydown', handleKeyDown);
+      buttons.forEach((button, index) => {
+        button.removeEventListener('click', (event) => handleClick(event, button, index));
+      });
+      window.removeEventListener('resize', resize);
+      activeElement.remove();
     };
-  }, [isMobileMenuOpen]);
-
-  const toggleMobileMenu = () => setIsMobileMenuOpen((open) => !open);
-  const closeMobileMenu = () => setIsMobileMenuOpen(false);
-
-  const handleBottomNavClick = (href) => {
-    const target = document.querySelector(href);
-    if (!target) return;
-
-    setActiveSection(href.slice(1));
-    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  };
+  }, []);
 
   return (
-    <header className={`navbar-header ${isScrolled ? 'scrolled' : ''} ${isMobileMenuOpen ? 'menu-is-open' : ''}`}>
-      <div className="container navbar-container">
-        <button
-          className={`mobile-menu-toggle ${isMobileMenuOpen ? 'is-open' : ''}`}
-          onClick={toggleMobileMenu}
-          aria-label={isMobileMenuOpen ? 'Close Navigation Menu' : 'Open Navigation Menu'}
-          aria-expanded={isMobileMenuOpen}
-        >
-          <span className="menu-icon" aria-hidden="true">
-            <span />
-            <span />
-            <span />
-          </span>
-          <span className="menu-label">{isMobileMenuOpen ? 'Close' : 'Menu'}</span>
-        </button>
-      </div>
-
-      <div className={`mobile-nav-overlay ${isMobileMenuOpen ? 'open' : ''}`} aria-hidden={!isMobileMenuOpen}>
-        <div className="menu-atmosphere" aria-hidden="true">
-          <span className="menu-orbit menu-orbit-one" />
-          <span className="menu-orbit menu-orbit-two" />
-          <span className="menu-glow" />
-          <span className="menu-grid" />
-        </div>
-
-        <div className="mobile-nav">
-          <p className="menu-eyebrow">VELTRIX / NAVIGATION</p>
-
-          <div className="menu-links">
-            {navItems.map((item, index) => (
-              <a
-                key={item.href}
-                href={item.href}
-                className="mobile-nav-link"
-                onClick={closeMobileMenu}
-                style={{ '--item-index': index }}
-              >
-                <span className="menu-link-number">0{index + 1}</span>
-                <span className="menu-link-text">{item.label}</span>
-                <span className="menu-link-arrow">↗</span>
-              </a>
-            ))}
-          </div>
-
-          <a href="#inquiry" className="mobile-cta" onClick={closeMobileMenu}>
-            <span>Start a Conversation</span>
-            <span className="cta-arrow">→</span>
-          </a>
-
-          <div className="menu-footer">
-            <span>VELTRIX / NAVIGATION</span>
-            <span>04 DESTINATIONS</span>
-          </div>
-        </div>
-      </div>
-
-      <nav
-        className={`bottom-nav ${isBottomNavVisible ? 'is-visible' : ''} direction-${direction}`}
-        aria-label="Section navigation"
-      >
-        <div className="bottom-nav-shell">
-          <div className="bottom-nav-orbit" aria-hidden="true" />
-          <div className="bottom-nav-glow" aria-hidden="true" />
-
-          <div className="bottom-nav-brand" aria-hidden="true">
-            <span className="bottom-brand-dot" />
-            <span>VLTX</span>
-          </div>
-
-          <div className="bottom-nav-items">
-            {navItems.map((item, index) => {
-              const isActive = activeSection === item.href.slice(1);
-
-              return (
-                <button
-                  key={item.href}
-                  type="button"
-                  className={`bottom-nav-item ${isActive ? 'active' : ''}`}
-                  onClick={() => handleBottomNavClick(item.href)}
-                  aria-current={isActive ? 'page' : undefined}
-                >
-                  <span className="bottom-item-index">0{index + 1}</span>
-                  <span className="bottom-item-icon">
-                    <span />
-                    <span />
-                  </span>
-                  <span className="bottom-item-label">{item.short}</span>
-                  <span className="bottom-item-line" />
-                </button>
-              );
-            })}
-          </div>
-
-          <div className="bottom-nav-progress" aria-hidden="true">
-            <span
-              style={{
-                transform: `translateX(${navItems.findIndex((item) => item.href.slice(1) === activeSection) * 100}%)`
-              }}
-            />
-          </div>
-        </div>
+    <header className="navbar-header">
+      <nav ref={navRef} className="veltrix-nav" aria-label="Main navigation">
+        <ul>
+          {navItems.map((item, index) => (
+            <li className={index === 0 ? 'active' : ''} key={item.href}>
+              <button type="button" data-href={item.href}>
+                {item.label}
+              </button>
+            </li>
+          ))}
+        </ul>
       </nav>
     </header>
   );
