@@ -1,220 +1,281 @@
-/* R3 luxury automotive navigation */
+/* R3 luxury automotive hamburger navigation */
 .navbar-header {
   position: fixed;
   top: 0;
-  left: 0;
   right: 0;
   z-index: 1000;
-  display: flex;
-  justify-content: center;
-  padding: 18px 24px 0;
+  padding: 22px 26px 0 0;
   pointer-events: none;
 }
 
 .veltrix-nav {
   position: relative;
-  width: min(900px, calc(100vw - 32px));
-  padding: 15px 28px 14px;
   pointer-events: auto;
-  background: rgba(20, 20, 20, 0.86);
-  border: 1px solid rgba(255, 109, 31, 0.16);
-  border-radius: 14px;
-  box-shadow:
-    0 10px 30px rgba(0, 0, 0, 0.35),
-    0 0 24px rgba(255, 109, 31, 0.04);
+}
+
+.hamburger-toggle {
+  position: relative;
+  z-index: 12;
+  width: 74px;
+  height: 50px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding: 0 13px;
+  border: 1px solid rgba(255, 109, 31, 0.24);
+  border-radius: 10px;
+  background: rgba(20, 20, 20, 0.84);
+  color: var(--color-cream);
+  cursor: pointer;
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
-  isolation: isolate;
-  overflow: visible;
-}
-
-.veltrix-nav .main-nav-list {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: clamp(24px, 7vw, 90px);
-  position: relative;
-  z-index: 3;
-}
-
-.veltrix-nav ul li {
-  position: relative;
-  z-index: 2;
-}
-
-.veltrix-nav ul li button {
-  appearance: none;
-  border: none;
-  cursor: pointer;
-  background: transparent;
-  padding: 3px 0 8px;
-  margin: 0;
-  font-family: var(--font-sans);
-  font-weight: 600;
-  font-size: 12px;
-  line-height: 20px;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  color: rgba(250, 243, 225, 0.62);
+  box-shadow:
+    0 10px 28px rgba(0, 0, 0, 0.28),
+    inset 0 0 0 1px rgba(250, 243, 225, 0.025);
   transition:
-    color 0.25s ease,
-    text-shadow 0.25s ease,
-    transform 0.25s ease;
+    border-color 0.3s ease,
+    background 0.3s ease,
+    transform 0.3s ease;
 }
 
-.veltrix-nav .main-nav-list li.active button {
-  color: var(--color-orange);
-  text-shadow: 0 0 12px rgba(255, 109, 31, 0.18);
-}
-
-.veltrix-nav .main-nav-list li:not(.active):hover button {
-  color: var(--color-cream);
-  text-shadow: 0 0 10px rgba(250, 243, 225, 0.12);
+.hamburger-toggle:hover {
+  border-color: rgba(255, 109, 31, 0.58);
+  background: rgba(28, 25, 22, 0.94);
   transform: translateY(-1px);
 }
 
-/* Three precision slashes: no lightning, no beam, just the R3 accent. */
-.veltrix-nav .active-element {
-  --active-element-scale-x: 1;
-  --active-element-scale-y: 1;
-  --active-element-show: 0;
-  --active-element-opacity: 1;
-  --active-element-width: 34px;
-  --active-element-strike-x: 0%;
-  --active-element-mask-position: 0%;
-
-  position: absolute;
-  left: 0;
-  bottom: 7px;
-  width: var(--active-element-width);
-  height: 9px;
-  opacity: var(--active-element-show);
-  pointer-events: none;
-  z-index: 6;
-  will-change: transform, width, opacity;
-  transform-origin: 50% 50%;
-  transition: opacity 0.18s ease;
+.hamburger-mark {
+  position: relative;
+  width: 25px;
+  height: 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
-/* The old SVG/strike artwork is deliberately removed visually. */
-.veltrix-nav .active-element > svg,
-.veltrix-nav .active-element .strike {
-  display: none !important;
-}
-
-/* Slash 1 — longest, slightly rising. */
-.veltrix-nav .active-element::before {
-  content: "";
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 100%;
+.hamburger-mark span {
+  display: block;
   height: 2px;
   border-radius: 999px;
   background: var(--color-orange);
-  box-shadow: 0 0 5px rgba(255, 109, 31, 0.24);
-  transform-origin: 50% 50%;
-  transform:
-    translate(-50%, -50%)
-    rotate(-8deg)
-    skewX(-18deg)
-    scaleX(calc(var(--active-element-scale-x) * 0.92));
-  clip-path: polygon(7% 0, 100% 0, 93% 100%, 0 100%);
-  transition:
-    transform 0.34s cubic-bezier(.22, .8, .2, 1),
-    width 0.28s ease;
-}
-
-/* Slash 2 — shorter and offset, creating the signature three-cut rhythm. */
-.veltrix-nav .active-element::after {
-  content: "";
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 76%;
-  height: 2px;
-  border-radius: 999px;
-  background: #ff9a5c;
-  box-shadow: 0 0 4px rgba(255, 154, 92, 0.2);
-  transform-origin: 50% 50%;
-  transform:
-    translate(-50%, 55%)
-    rotate(-8deg)
-    skewX(-18deg)
-    scaleX(calc(var(--active-element-scale-x) * 0.78));
-  clip-path: polygon(10% 0, 100% 0, 90% 100%, 0 100%);
+  transform-origin: center;
   transition:
     transform 0.42s cubic-bezier(.22, .8, .2, 1),
-    width 0.32s ease;
+    width 0.42s cubic-bezier(.22, .8, .2, 1),
+    opacity 0.25s ease;
 }
 
-/* Third slash is painted by the element itself. */
-.veltrix-nav .active-element {
+.hamburger-mark span:nth-child(2) {
+  width: 72%;
+  margin-left: auto;
+  background: var(--color-cream);
+}
+
+.hamburger-mark span:nth-child(3) {
+  width: 86%;
+}
+
+.is-open .hamburger-mark span:first-child {
+  transform: translateY(8px) rotate(45deg);
+}
+
+.is-open .hamburger-mark span:nth-child(2) {
+  width: 100%;
+  opacity: 0;
+  transform: scaleX(0);
+}
+
+.is-open .hamburger-mark span:nth-child(3) {
+  width: 100%;
+  transform: translateY(-8px) rotate(-45deg);
+}
+
+.hamburger-label {
+  display: none;
+}
+
+.nav-menu-panel {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: flex-end;
+  padding: 22px 26px 26px;
   background:
-    linear-gradient(
-      90deg,
-      transparent 0 8%,
-      var(--color-cream) 8% 11%,
-      var(--color-orange) 11% 88%,
-      transparent 88%
-    );
-  background-size: 100% 2px;
-  background-position: center 92%;
-  background-repeat: no-repeat;
-  filter: drop-shadow(0 0 4px rgba(255, 109, 31, 0.22));
-  clip-path: polygon(7% 0, 100% 0, 93% 100%, 0 100%);
+    radial-gradient(circle at 85% 12%, rgba(255, 109, 31, 0.09), transparent 30%),
+    rgba(9, 9, 9, 0.96);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  clip-path: inset(0 0 100% 0);
   transition:
-    opacity 0.18s ease,
-    width 0.28s cubic-bezier(.22, .8, .2, 1),
-    clip-path 0.38s cubic-bezier(.22, .8, .2, 1);
+    opacity 0.3s ease,
+    visibility 0.3s ease,
+    clip-path 0.58s cubic-bezier(.76, 0, .24, 1);
 }
 
-/* Non-standard opening: each cut reveals from a different point. */
-.veltrix-nav .active-element[style*="opacity: 0"],
-.veltrix-nav .active-element[style*="opacity:0"] {
-  clip-path: polygon(50% 0, 50% 0, 50% 100%, 50% 100%);
+.is-open .nav-menu-panel {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  clip-path: inset(0);
 }
 
-.veltrix-nav.before .active-element {
-  transform: rotateY(180deg);
+.nav-menu-inner {
+  width: min(620px, 100%);
+  min-height: 100%;
+  padding: clamp(110px, 15vh, 160px) clamp(22px, 5vw, 72px) 34px;
+  display: flex;
+  flex-direction: column;
+  border-left: 1px solid rgba(255, 109, 31, 0.12);
+}
+
+.nav-menu-kicker {
+  margin-bottom: clamp(34px, 6vh, 68px);
+  color: rgba(250, 243, 225, 0.42);
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+
+.nav-menu-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid rgba(250, 243, 225, 0.1);
+}
+
+.nav-menu-list li {
+  opacity: 0;
+  transform: translateX(32px);
+  transition:
+    opacity 0.42s ease,
+    transform 0.55s cubic-bezier(.22, .8, .2, 1);
+  transition-delay: calc(var(--item-index) * 55ms + 90ms);
+}
+
+.is-open .nav-menu-list li {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.nav-menu-list button {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 48px 1fr 34px;
+  align-items: center;
+  gap: 18px;
+  padding: 22px 0;
+  border: 0;
+  border-bottom: 1px solid rgba(250, 243, 225, 0.1);
+  background: transparent;
+  color: var(--color-cream);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    color 0.25s ease,
+    padding 0.35s cubic-bezier(.22, .8, .2, 1);
+}
+
+.nav-menu-list button:hover {
+  padding-left: 14px;
+  color: var(--color-orange);
+}
+
+.nav-menu-number {
+  color: rgba(250, 243, 225, 0.32);
+  font-family: var(--font-sans);
+  font-size: 10px;
+  letter-spacing: 2px;
+}
+
+.nav-menu-title {
+  font-family: var(--font-sans);
+  font-size: clamp(28px, 4vw, 52px);
+  font-weight: 500;
+  letter-spacing: -1.5px;
+  line-height: 0.95;
+}
+
+.nav-menu-arrow {
+  color: var(--color-orange);
+  font-size: 24px;
+  line-height: 1;
+  transform: translate(-4px, 4px);
+  transition: transform 0.3s ease;
+}
+
+.nav-menu-list button:hover .nav-menu-arrow {
+  transform: translate(0, 0) rotate(45deg);
+}
+
+.nav-menu-footer {
+  margin-top: auto;
+  padding-top: 28px;
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  color: rgba(250, 243, 225, 0.3);
+  font-family: var(--font-sans);
+  font-size: 9px;
+  letter-spacing: 2px;
+}
+
+.nav-menu-footer span:last-child {
+  color: var(--color-orange);
+  font-weight: 700;
+}
+
+body.nav-menu-open {
+  overflow: hidden;
 }
 
 @media (max-width: 640px) {
   .navbar-header {
-    padding: 10px 10px 0;
+    padding: 12px 12px 0 0;
   }
 
-  .veltrix-nav {
-    width: calc(100vw - 20px);
-    padding: 13px 14px 12px;
-    border-radius: 12px;
+  .hamburger-toggle {
+    width: 56px;
+    height: 46px;
+    padding: 0 12px;
   }
 
-  .veltrix-nav .main-nav-list {
+  .nav-menu-panel {
+    padding: 12px;
+  }
+
+  .nav-menu-inner {
+    width: 100%;
+    border-left: 0;
+    padding: 100px 18px 24px;
+  }
+
+  .nav-menu-title {
+    font-size: clamp(30px, 10vw, 44px);
+  }
+
+  .nav-menu-list button {
+    grid-template-columns: 36px 1fr 28px;
     gap: 10px;
+    padding: 19px 0;
   }
 
-  .veltrix-nav ul li button {
-    font-size: 9px;
-    letter-spacing: 1.1px;
-    padding-bottom: 8px;
-  }
-
-  .veltrix-nav .active-element {
-    bottom: 6px;
-    height: 8px;
+  .nav-menu-footer {
+    font-size: 8px;
+    letter-spacing: 1.3px;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .veltrix-nav .active-element,
-  .veltrix-nav .active-element::before,
-  .veltrix-nav .active-element::after,
-  .veltrix-nav ul li button {
-    animation: none !important;
+  .hamburger-mark span,
+  .nav-menu-panel,
+  .nav-menu-list li,
+  .nav-menu-list button,
+  .nav-menu-arrow {
     transition: none !important;
   }
 }
