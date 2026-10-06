@@ -2,11 +2,11 @@ import React, { useEffect, useRef, useState } from 'react';
 import './CarGallery.css';
 
 const cars = [
-  { src: '/cars/car-01.jpg', alt: 'Luxury car 01' },
-  { src: '/cars/car-02.jpg', alt: 'Luxury car 02' },
-  { src: '/cars/car-03.jpg', alt: 'Luxury car 03' },
-  { src: '/cars/car-04.jpg', alt: 'Luxury car 04' },
-  { src: '/cars/car-05.jpg', alt: 'Luxury car 05' },
+  { src: '/Cars/IMG_20261006_145112.jpg', alt: 'Luxury car 01' },
+  { src: '/Cars/IMG_20261006_145026.jpg', alt: 'Luxury car 02' },
+  { src: '/Cars/IMG_20261006_145036.jpg', alt: 'Luxury car 03' },
+  { src: '/Cars/IMG_20261006_145048.jpg', alt: 'Luxury car 04' },
+  { src: '/Cars/IMG_20261006_145055.jpg', alt: 'Luxury car 05' },
 ];
 
 const CarGallery = () => {
