@@ -106,19 +106,20 @@ const Navbar = () => {
         '--active-element-opacity': 1,
         '--active-element-width': `${Math.min(Math.max(distance, 42), nav.offsetWidth - 60)}px`,
         '--active-element-strike-x': '-50%',
-        duration: .55,
+        duration: .65,
         ease: 'power2.out',
       });
 
+      // Smoothly retract the travelling light instead of killing it at the end.
       gsap.to(activeElement, {
-        '--active-element-scale-x': 0,
-        '--active-element-scale-y': .25,
-        '--active-element-opacity': 0,
-        delay: .42,
-        duration: .32,
-        ease: 'power2.in',
+        '--active-element-width': '42px',
+        '--active-element-scale-x': 1,
+        '--active-element-scale-y': 1,
+        '--active-element-opacity': 1,
+        delay: .48,
+        duration: .72,
+        ease: 'power2.inOut',
         onComplete: () => {
-          activeElement.innerHTML = '';
           nav.classList.remove('before', 'after');
           gsap.set(activeElement, {
             x,
