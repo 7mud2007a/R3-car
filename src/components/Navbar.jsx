@@ -83,18 +83,16 @@ const Navbar = () => {
         return;
       }
 
-      gsap.to(activeElement, {
-        x: left,
-        width,
-        duration: 0.55,
-        ease: 'power2.out',
-        overwrite: true,
+      gsap.set(activeElement, {
+        '--active-element-show': 1,
+        '--active-element-opacity': 1,
       });
 
       gsap.to(activeElement, {
-        '--active-element-show': 1,
-        duration: 0.18,
-        ease: 'power1.out',
+        x: left,
+        width,
+        duration: 0.68,
+        ease: 'power3.out',
         overwrite: true,
       });
     };
