@@ -144,11 +144,6 @@
     padding-bottom: 8px;
   }
 
-  .veltrix-nav::after {
-    left: 14px;
-    right: 14px;
-  }
-
   .veltrix-nav .active-element {
     bottom: 6px;
   }
