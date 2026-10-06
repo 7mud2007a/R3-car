@@ -76,117 +76,106 @@
   transform: translateY(-1px);
 }
 
-/* Animated orange accent — same movement, with a soft light trailing it */
+/* Three precision slashes: no lightning, no beam, just the R3 accent. */
 .veltrix-nav .active-element {
   --active-element-scale-x: 1;
   --active-element-scale-y: 1;
   --active-element-show: 0;
-  --active-element-opacity: 0;
-  --active-element-width: 32px;
+  --active-element-opacity: 1;
+  --active-element-width: 34px;
   --active-element-strike-x: 0%;
   --active-element-mask-position: 0%;
 
   position: absolute;
   left: 0;
-  top: auto;
   bottom: 7px;
-  height: 2.5px;
-  width: 32px;
-  border-radius: 2px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    var(--color-orange),
-    transparent
-  );
-  box-shadow:
-    0 0 4px rgba(255, 109, 31, 0.5),
-    0 0 10px rgba(255, 109, 31, 0.16);
+  width: var(--active-element-width);
+  height: 9px;
   opacity: var(--active-element-show);
   pointer-events: none;
   z-index: 6;
   will-change: transform, width, opacity;
+  transform-origin: 50% 50%;
+  transition: opacity 0.18s ease;
 }
 
+/* The old SVG/strike artwork is deliberately removed visually. */
+.veltrix-nav .active-element > svg,
+.veltrix-nav .active-element .strike {
+  display: none !important;
+}
+
+/* Slash 1 — longest, slightly rising. */
+.veltrix-nav .active-element::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 100%;
+  height: 2px;
+  border-radius: 999px;
+  background: var(--color-orange);
+  box-shadow: 0 0 5px rgba(255, 109, 31, 0.24);
+  transform-origin: 50% 50%;
+  transform:
+    translate(-50%, -50%)
+    rotate(-8deg)
+    skewX(-18deg)
+    scaleX(calc(var(--active-element-scale-x) * 0.92));
+  clip-path: polygon(7% 0, 100% 0, 93% 100%, 0 100%);
+  transition:
+    transform 0.34s cubic-bezier(.22, .8, .2, 1),
+    width 0.28s ease;
+}
+
+/* Slash 2 — shorter and offset, creating the signature three-cut rhythm. */
 .veltrix-nav .active-element::after {
   content: "";
   position: absolute;
   left: 50%;
   top: 50%;
-  width: 52px;
-  height: 10px;
-  transform: translate(-50%, -50%);
-  border-radius: 50%;
-  background: rgba(255, 109, 31, 0.18);
-  filter: blur(7px);
-  opacity: 0.75;
-  pointer-events: none;
-}
-
-.veltrix-nav .active-element > svg,
-.veltrix-nav .active-element .strike {
-  position: absolute;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  opacity: var(--active-element-opacity);
-  width: var(--active-element-width);
-  pointer-events: none;
-}
-
-.veltrix-nav .active-element > svg {
-  display: block;
-  overflow: visible;
-  height: 6px;
-  filter:
-    drop-shadow(0 0 2px var(--color-orange))
-    drop-shadow(0 0 5px rgba(255, 109, 31, 0.35));
-}
-
-.veltrix-nav .active-element .strike {
-  padding: 24px 0;
-  -webkit-mask-image:
-    linear-gradient(
-      to right,
-      transparent calc(0% + var(--active-element-mask-position)),
-      black calc(15% + var(--active-element-mask-position)),
-      black 80%,
-      transparent
-    );
-  mask-image:
-    linear-gradient(
-      to right,
-      transparent calc(0% + var(--active-element-mask-position)),
-      black calc(15% + var(--active-element-mask-position)),
-      black 80%,
-      transparent
-    );
-}
-
-.veltrix-nav .active-element .strike svg {
-  display: block;
-  overflow: visible;
-  height: 12px;
-  width: calc(var(--active-element-width) * 2);
+  width: 76%;
+  height: 2px;
+  border-radius: 999px;
+  background: #ff9a5c;
+  box-shadow: 0 0 4px rgba(255, 154, 92, 0.2);
+  transform-origin: 50% 50%;
   transform:
-    translate(var(--active-element-strike-x), 30%)
-    scale(var(--active-element-scale-x), var(--active-element-scale-y));
+    translate(-50%, 55%)
+    rotate(-8deg)
+    skewX(-18deg)
+    scaleX(calc(var(--active-element-scale-x) * 0.78));
+  clip-path: polygon(10% 0, 100% 0, 90% 100%, 0 100%);
+  transition:
+    transform 0.42s cubic-bezier(.22, .8, .2, 1),
+    width 0.32s ease;
 }
 
-.veltrix-nav .active-element .strike svg:last-child {
-  transform:
-    translate(var(--active-element-strike-x), -30%)
-    scale(-1);
+/* Third slash is painted by the element itself. */
+.veltrix-nav .active-element {
+  background:
+    linear-gradient(
+      90deg,
+      transparent 0 8%,
+      var(--color-cream) 8% 11%,
+      var(--color-orange) 11% 88%,
+      transparent 88%
+    );
+  background-size: 100% 2px;
+  background-position: center 92%;
+  background-repeat: no-repeat;
+  filter: drop-shadow(0 0 4px rgba(255, 109, 31, 0.22));
+  clip-path: polygon(7% 0, 100% 0, 93% 100%, 0 100%);
+  transition:
+    opacity 0.18s ease,
+    width 0.28s cubic-bezier(.22, .8, .2, 1),
+    clip-path 0.38s cubic-bezier(.22, .8, .2, 1);
 }
 
-.veltrix-nav .active-element .strike svg g path:nth-child(2) {
-  filter: blur(1.5px);
-  stroke: var(--color-orange);
-}
-
-.veltrix-nav .active-element .strike svg g path:nth-child(3) {
-  filter: blur(3px);
-  stroke: #ff9a5c;
+/* Non-standard opening: each cut reveals from a different point. */
+.veltrix-nav .active-element[style*="opacity: 0"],
+.veltrix-nav .active-element[style*="opacity:0"] {
+  clip-path: polygon(50% 0, 50% 0, 50% 100%, 50% 100%);
 }
 
 .veltrix-nav.before .active-element {
@@ -216,14 +205,16 @@
 
   .veltrix-nav .active-element {
     bottom: 6px;
+    height: 8px;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .veltrix-nav .active-element,
-  .veltrix-nav .active-element > svg,
-  .veltrix-nav .active-element .strike,
+  .veltrix-nav .active-element::before,
+  .veltrix-nav .active-element::after,
   .veltrix-nav ul li button {
     animation: none !important;
+    transition: none !important;
   }
 }
