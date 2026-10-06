@@ -77,10 +77,6 @@ const CarGallery = () => {
           ))}
         </div>
 
-        <div className="car-gallery-hint" aria-hidden="true">
-          <span className="hint-line" />
-          <span>KEEP SCROLLING</span>
-        </div>
       </div>
     </section>
   );
