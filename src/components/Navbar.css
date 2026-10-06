@@ -76,7 +76,7 @@
   transform: translateY(-1px);
 }
 
-/* Animated orange R3 accent */
+/* Animated orange accent — same movement, with a soft light trailing it */
 .veltrix-nav .active-element {
   --active-element-scale-x: 1;
   --active-element-scale-y: 1;
@@ -100,12 +100,27 @@
     transparent
   );
   box-shadow:
-    0 0 7px rgba(255, 109, 31, 0.75),
-    0 0 18px rgba(255, 109, 31, 0.28);
+    0 0 4px rgba(255, 109, 31, 0.5),
+    0 0 10px rgba(255, 109, 31, 0.16);
   opacity: var(--active-element-show);
   pointer-events: none;
   z-index: 6;
   will-change: transform, width, opacity;
+}
+
+.veltrix-nav .active-element::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 52px;
+  height: 10px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: rgba(255, 109, 31, 0.18);
+  filter: blur(7px);
+  opacity: 0.75;
+  pointer-events: none;
 }
 
 .veltrix-nav .active-element > svg,
@@ -124,9 +139,8 @@
   overflow: visible;
   height: 6px;
   filter:
-    drop-shadow(0 0 3px var(--color-orange))
-    drop-shadow(0 0 8px rgba(255, 109, 31, 0.7))
-    drop-shadow(0 0 15px rgba(255, 109, 31, 0.35));
+    drop-shadow(0 0 2px var(--color-orange))
+    drop-shadow(0 0 5px rgba(255, 109, 31, 0.35));
 }
 
 .veltrix-nav .active-element .strike {
