@@ -27,7 +27,7 @@
   height: 100%;
   width: max-content;
   will-change: transform;
-  padding: 0 0 0 max(5vw, 24px);
+  padding: 0;
   transition: transform 40ms linear;
 }
 
@@ -128,7 +128,7 @@
 @media (max-width: 700px) {
   .car-gallery-track {
     gap: 12px;
-    padding: 0 0 0 20px;
+    padding: 0;
   }
 
   .car-gallery-intro {
