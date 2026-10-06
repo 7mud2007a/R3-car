@@ -95,6 +95,10 @@
 
   will-change: transform, width, opacity;
 
+  transition:
+    width .55s cubic-bezier(.22, .61, .36, 1),
+    opacity .2s ease;
+
   overflow: visible;
 }
 
@@ -109,7 +113,7 @@
 
   transform: translateY(-50%);
 
-  opacity: .95;
+  opacity: var(--active-element-opacity, .95);
 
   pointer-events: none;
   mix-blend-mode: screen;
