@@ -1,86 +1,93 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React from 'react';
 import './CarGallery.css';
 
 const cars = [
-  { src: '/Cars/IMG_20261006_145112.jpg', alt: 'Luxury car 01' },
-  { src: '/Cars/IMG_20261006_145026.jpg', alt: 'Luxury car 02' },
-  { src: '/Cars/IMG_20261006_145036.jpg', alt: 'Luxury car 03' },
-  { src: '/Cars/IMG_20261006_145048.jpg', alt: 'Luxury car 04' },
-  { src: '/Cars/IMG_20261006_145055.jpg', alt: 'Luxury car 05' },
+  {
+    src: '/Cars/IMG_20261006_145112.jpg',
+    name: 'R3 GT',
+    type: 'Grand Touring',
+    specs: ['V8 Twin Turbo', '620 HP', 'AWD'],
+    price: '$184,900',
+  },
+  {
+    src: '/Cars/IMG_20261006_145026.jpg',
+    name: 'R3 Blackline',
+    type: 'Performance Coupe',
+    specs: ['V8 4.0L', '603 HP', '0–100 km/h 3.4s'],
+    price: '$209,500',
+  },
+  {
+    src: '/Cars/IMG_20261006_145036.jpg',
+    name: 'R3 Apex',
+    type: 'Sport Series',
+    specs: ['V8 Hybrid', '671 HP', 'AWD'],
+    price: '$238,000',
+  },
+  {
+    src: '/Cars/IMG_20261006_145048.jpg',
+    name: 'R3 Executive',
+    type: 'Luxury Sedan',
+    specs: ['V6 Twin Turbo', '480 HP', 'AWD'],
+    price: '$156,900',
+  },
+  {
+    src: '/Cars/IMG_20261006_145055.jpg',
+    name: 'R3 Sovereign',
+    type: 'Luxury Performance',
+    specs: ['V8 4.4L', '625 HP', '0–100 km/h 3.8s'],
+    price: '$224,900',
+  },
 ];
 
-const CarGallery = () => {
-  const sectionRef = useRef(null);
-  const trackRef = useRef(null);
-  const [progress, setProgress] = useState(0);
-
-  useEffect(() => {
-    let raf = 0;
-
-    const updateGallery = () => {
-      raf = 0;
-      const section = sectionRef.current;
-      const track = trackRef.current;
-      if (!section || !track) return;
-
-      const rect = section.getBoundingClientRect();
-      const maxScroll = section.offsetHeight - window.innerHeight;
-      const travelled = Math.min(Math.max(-rect.top, 0), maxScroll);
-      const nextProgress = maxScroll > 0 ? travelled / maxScroll : 0;
-      setProgress(nextProgress);
-
-      const maxTranslate = Math.max(track.scrollWidth - window.innerWidth, 0);
-      track.style.transform = `translate3d(-${maxTranslate * nextProgress}px, 0, 0)`;
-    };
-
-    const onScroll = () => {
-      if (!raf) raf = requestAnimationFrame(updateGallery);
-    };
-
-    const onResize = () => {
-      if (!raf) raf = requestAnimationFrame(updateGallery);
-    };
-
-    window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', onResize);
-    updateGallery();
-
-    return () => {
-      window.removeEventListener('scroll', onScroll);
-      window.removeEventListener('resize', onResize);
-      if (raf) cancelAnimationFrame(raf);
-    };
-  }, []);
-
-  return (
-    <section
-      id="collection"
-      ref={sectionRef}
-      className="car-gallery"
-      aria-label="Luxury car collection"
-      style={{ '--car-count': cars.length }}
-    >
-      <div className="car-gallery-sticky">
-        <div className="car-gallery-intro">
-          <span>VELTRIX / COLLECTION</span>
-          <i>{String(Math.min(cars.length, Math.floor(progress * cars.length) + 1)).padStart(2, '0')} / {String(cars.length).padStart(2, '0')}</i>
+const CarGallery = () => (
+  <section id="collection" className="car-gallery" aria-label="R3 car collection">
+    <div className="car-gallery-shell">
+      <header className="car-gallery-header">
+        <div>
+          <span className="car-gallery-eyebrow">R3 / COLLECTION</span>
+          <h2>Choose Your <em>Drive.</em></h2>
         </div>
+        <p>
+          A curated selection of performance and luxury machines,
+          presented with the R3 signature.
+        </p>
+      </header>
 
-        <div ref={trackRef} className="car-gallery-track">
-          {cars.map((car, index) => (
-            <article className="car-gallery-card" key={car.src}>
-              <div className="car-gallery-frame">
-                <img src={car.src} alt={car.alt} draggable="false" />
-                <div className="car-gallery-shade" />
-                <div className="car-gallery-index">0{index + 1}</div>
+      <div className="car-gallery-grid">
+        {cars.map((car, index) => (
+          <article className="car-card" key={car.src}>
+            <div className="car-card-image">
+              <img src={car.src} alt={car.name} loading={index < 2 ? 'eager' : 'lazy'} draggable="false" />
+              <div className="car-card-overlay" />
+              <span className="car-card-number">0{index + 1}</span>
+              <span className="car-card-type">{car.type}</span>
+            </div>
+
+            <div className="car-card-content">
+              <div className="car-card-heading">
+                <div>
+                  <span className="car-card-label">R3 SERIES</span>
+                  <h3>{car.name}</h3>
+                </div>
+                <strong>{car.price}</strong>
               </div>
-            </article>
-          ))}
-        </div>
 
+              <div className="car-card-specs">
+                {car.specs.map((spec) => (
+                  <span key={spec}>{spec}</span>
+                ))}
+              </div>
+
+              <button type="button" className="car-card-action">
+                <span>Explore vehicle</span>
+                <span aria-hidden="true">↗</span>
+              </button>
+            </div>
+          </article>
+        ))}
       </div>
-    </section>
-  );
-};
+    </div>
+  </section>
+);
 
 export default CarGallery;
