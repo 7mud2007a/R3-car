@@ -58,7 +58,7 @@ const Footer = () => {
         {/* Bottom Bar */}
         <div className="footer-bottom">
           <p className="copyright-text">
-            &copy; {new Date().getFullYear()} <strong>Veltrix</strong>. All Rights Reserved. Crafted with Automotive Perfection.
+            Crafted by <a className="footer-creator-link" href="https://sevenmud-web.onrender.com" target="_blank" rel="noreferrer">7mud</a>
           </p>
 
           <button onClick={scrollToTop} className="scroll-top-btn" aria-label="Scroll back to top">
